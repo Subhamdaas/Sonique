@@ -4,9 +4,9 @@
 
 ---
 
-## 🌟 Key Highlights & Features
+##  Key Highlights & Features
 
-- **🎧 Expansive 1,770+ Track Catalog**: Seeded with rich multi-lingual discographies across:
+- ** Expansive 1,770+ Track Catalog**: Seeded with rich multi-lingual discographies across:
   - **90's Bollywood & Evergreen Hindi**: Kumar Sanu, Alka Yagnik, Udit Narayan, Kishore Kumar, Lata Mangeshkar, R.D. Burman, Sonu Nigam, KK, Mohit Chauhan, Indipop, and Bappi Lahiri.
   - **Kannada Sandalwood & Folk**: Dr. Rajkumar, S.P. Balasubrahmanyam, Sanjith Hegde, Armaan Malik, Vijay Prakash, KGF, Kantara, and Bhavageethe.
   - **Odia & Ollywood Classics & Folk**: Akshaya Mohanty, Pranab Patnaik, Humane Sagar, Asima Panda, Sambalpuri Dalkhai, and Gita Govinda.
@@ -14,11 +14,11 @@
   - **90's English Pop, Rock & EDM**: Backstreet Boys, Britney Spears, Spice Girls, Michael Jackson, Whitney Houston, Nirvana, Queen, Oasis, Avicii, and Calvin Harris.
   - **Midnight Lo-Fi & Study Chill**: Indian Lo-Fi rain beats, study jazz, and vaporwave.
   - **Multi-Lingual Podcasts**: The Ranveer Show, Geeta Saar, Kannada Kahi, Odia Galpa, Huberman Lab, and Lex Fridman.
-- **⚡ High Performance Audio Engine**: Dual-stream HTML5 audio playback with real CDN links, queue management, volume memory, repeat, shuffle, and seek bar.
-- **👥 Real-time "Listen Together" Rooms**: Socket.IO collaborative synchronized listening with live room chat and floating reactions.
-- **💎 Glassmorphic Dark UI**: Modern Spotify-inspired aesthetics with responsive navigation, playlists, liked songs, dynamic explore filters, and search.
-- **🔐 Secure Authentication**: JWT token rotation with Bcrypt password hashing and role-based access control (`LISTENER`, `ARTIST`, `ADMIN`).
-- **📱 Cross-Platform Support**: Web Client (`apps/web`), Backend API (`apps/api`), and Mobile App (`apps/mobile`).
+- ** High Performance Audio Engine**: Dual-stream HTML5 audio playback with real CDN links, queue management, volume memory, repeat, shuffle, and seek bar.
+- ** Real-time "Listen Together" Rooms**: Socket.IO collaborative synchronized listening with live room chat and floating reactions.
+- ** Glassmorphic Dark UI**: Modern Spotify-inspired aesthetics with responsive navigation, playlists, liked songs, dynamic explore filters, and search.
+- ** Secure Authentication**: JWT token rotation with Bcrypt password hashing and role-based access control (`LISTENER`, `ARTIST`, `ADMIN`).
+- ** Cross-Platform Support**: Web Client (`apps/web`), Backend API (`apps/api`), and Mobile App (`apps/mobile`).
 
 ---
 
@@ -39,7 +39,6 @@ Sonique
 
 ---
 
-## ⚡ Quick Start
 
 ### 1. Backend Setup (`apps/api`)
 ```bash
