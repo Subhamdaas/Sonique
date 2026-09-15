@@ -1,0 +1,56 @@
+{
+  "name": "aura-stream-api",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/src/main.js",
+    "test": "jest",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@nestjs/common": "latest",
+    "@nestjs/config": "latest",
+    "@nestjs/core": "latest",
+    "@nestjs/jwt": "latest",
+    "@nestjs/platform-express": "latest",
+    "@nestjs/platform-socket.io": "^12.0.2",
+    "@nestjs/websockets": "^12.0.2",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "bcrypt": "latest",
+    "class-transformer": "latest",
+    "class-validator": "latest",
+    "cookie-parser": "latest",
+    "dotenv": "^17.4.2",
+    "helmet": "latest",
+    "ioredis": "^6.0.0",
+    "jsonwebtoken": "latest",
+    "pg": "^8.23.0",
+    "reflect-metadata": "latest",
+    "rxjs": "latest",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "latest",
+    "@nestjs/schematics": "latest",
+    "@nestjs/testing": "latest",
+    "@types/bcrypt": "latest",
+    "@types/cookie-parser": "latest",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.2.0",
+    "@types/node": "latest",
+    "@types/pg": "^8.23.1",
+    "jest": "latest",
+    "prisma": "^7.10.0",
+    "ts-jest": "latest",
+    "ts-node": "latest",
+    "typescript": "latest"
+  },
+  "allowScripts": {
+    "prisma@7.10.0": true,
+    "@prisma/engines@7.10.0": true
+  }
+}
