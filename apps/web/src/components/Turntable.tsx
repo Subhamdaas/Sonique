@@ -13,6 +13,12 @@ import {
   ListMusic,
   Disc3,
   Repeat,
+  Mic2,
+  Moon,
+  Share2,
+  Gauge,
+  X,
+  Check,
 } from 'lucide-react';
 import { usePlayerStore } from '../store/playerStore';
 import { useLibraryStore } from '../store/libraryStore';
@@ -33,6 +39,10 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
   const [freqBars, setFreqBars] = useState<number[]>([]);
   const [rpm, setRpm] = useState<33 | 45>(33);
   const [pitchOffset, setPitchOffset] = useState<number>(0);
+  const [isLyricsOpen, setIsLyricsOpen] = useState<boolean>(false);
+  const [isSleepTimerMenuOpen, setIsSleepTimerMenuOpen] = useState<boolean>(false);
+  const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   const current = player.current;
   const isPlaying = player.isPlaying;
@@ -83,6 +93,16 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
     const baseRate = rpm === 45 ? 1.35 : 1.0;
     const pitchFactor = 1 + val / 100;
     audioEngine.setPlaybackRate(baseRate * pitchFactor);
+  };
+
+  const handleShareTrack = () => {
+    if (!current) return;
+    try {
+      const url = `${window.location.origin}/#${current.id}`;
+      navigator.clipboard.writeText(url);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    } catch (e) {}
   };
 
   const handleScratchStart = () => {
@@ -351,10 +371,115 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
             aria-label={hasLiked ? 'Unlike song' : 'Like song'}
             title={hasLiked ? 'Unlike' : 'Like'}
           >
-            <Heart size={18} fill={hasLiked ? '#000' : 'none'} color="#000" />
+            <Heart size={17} fill={hasLiked ? '#000' : 'none'} color="#000" />
+          </button>
+
+          <button
+            className={`turntableActionIconBtn ${isLyricsOpen ? 'active' : ''}`}
+            onClick={() => setIsLyricsOpen(!isLyricsOpen)}
+            disabled={!current}
+            aria-label="View Lyrics"
+            title="Lyrics"
+          >
+            <Mic2 size={16} />
+          </button>
+
+          <div className="relativeActionWrap">
+            <button
+              className={`turntableActionIconBtn ${player.sleepTimerMinutes ? 'active' : ''}`}
+              onClick={() => setIsSleepTimerMenuOpen(!isSleepTimerMenuOpen)}
+              aria-label="Sleep Timer"
+              title={player.sleepTimerMinutes ? `Sleep timer: ${player.sleepTimerMinutes}m` : 'Set Sleep Timer'}
+            >
+              <Moon size={16} />
+            </button>
+
+            {isSleepTimerMenuOpen && (
+              <div className="retroActionDropdown sleepTimerDropdown">
+                <span className="dropdownTitle">SLEEP TIMER</span>
+                <button
+                  className={`dropdownOption ${player.sleepTimerMinutes === null ? 'selected' : ''}`}
+                  onClick={() => {
+                    player.setSleepTimer(null);
+                    setIsSleepTimerMenuOpen(false);
+                  }}
+                >
+                  Off
+                </button>
+                {[15, 30, 45, 60].map((m) => (
+                  <button
+                    key={m}
+                    className={`dropdownOption ${player.sleepTimerMinutes === m ? 'selected' : ''}`}
+                    onClick={() => {
+                      player.setSleepTimer(m);
+                      setIsSleepTimerMenuOpen(false);
+                    }}
+                  >
+                    {m} minutes
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="relativeActionWrap">
+            <button
+              className="turntableActionIconBtn speedBadgeBtn"
+              onClick={() => setIsSpeedMenuOpen(!isSpeedMenuOpen)}
+              aria-label="Playback Speed"
+              title={`Playback Speed: ${player.playbackSpeed}x`}
+            >
+              <span className="speedBadgeText">{player.playbackSpeed}x</span>
+            </button>
+
+            {isSpeedMenuOpen && (
+              <div className="retroActionDropdown speedDropdown">
+                <span className="dropdownTitle">SPEED</span>
+                {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((spd) => (
+                  <button
+                    key={spd}
+                    className={`dropdownOption ${player.playbackSpeed === spd ? 'selected' : ''}`}
+                    onClick={() => {
+                      player.setPlaybackSpeed(spd);
+                      setIsSpeedMenuOpen(false);
+                    }}
+                  >
+                    {spd}x
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button
+            className="turntableActionIconBtn"
+            onClick={handleShareTrack}
+            disabled={!current}
+            aria-label="Share Song Link"
+            title={copiedLink ? 'Link Copied!' : 'Share Song Link'}
+          >
+            {copiedLink ? <Check size={16} color="#059669" /> : <Share2 size={16} />}
           </button>
         </div>
       </div>
+
+      {/* Autoplay Paused by Browser Resume Banner */}
+      {player.isAutoplayBlocked && current && (
+        <div className="turntableAutoplayResumeAlert">
+          <div className="resumeAlertText">
+            <span className="resumePulseDot" />
+            <span>Autoplay paused by browser. Saved at {formatTime(player.progress)}.</span>
+          </div>
+          <button
+            className="turntableResumeBtn"
+            onClick={player.resumeAutoplay}
+            aria-label={`Resume playing at ${formatTime(player.progress)}`}
+          >
+            <Play size={12} fill="#000" color="#000" />
+            <span>RESUME</span>
+          </button>
+        </div>
+      )}
 
       {/* Rhythmic Frequency Bars & Seekable Waveform */}
       <div className="waveformContainer">
@@ -529,6 +654,38 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
           )}
         </div>
       </div>
+
+      {/* Lyrics Viewer Modal (Requirement 13) */}
+      {isLyricsOpen && current && (
+        <div className="turntableLyricsOverlay" onClick={() => setIsLyricsOpen(false)}>
+          <div className="turntableLyricsCard" onClick={(e) => e.stopPropagation()}>
+            <div className="lyricsHeader">
+              <div className="lyricsHeaderMeta">
+                <span className="lyricsEyebrow">SONIQUE STUDIO LYRICS</span>
+                <h3 className="lyricsTrackTitle">{current.title}</h3>
+                <span className="lyricsTrackArtist">{(current as any).artist || 'Unknown Artist'}</span>
+              </div>
+              <button
+                className="lyricsCloseBtn"
+                onClick={() => setIsLyricsOpen(false)}
+                aria-label="Close lyrics"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="lyricsBody">
+              {(current as any).lyrics ? (
+                <div className="lyricsTextContent">{(current as any).lyrics}</div>
+              ) : (
+                <div className="lyricsUnavailableState">
+                  <Mic2 size={32} />
+                  <span>Lyrics unavailable for this recording</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

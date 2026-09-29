@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, User, X, Play, LogOut, Disc3, Mic2, Library } from 'lucide-react';
+import { Search, User, X, Play, LogOut, Disc3, Mic2, Library, Keyboard } from 'lucide-react';
 import { api } from '../services/api';
 import { Track, Artist, Album, Playlist } from '../types';
 import { usePlayerStore } from '../store/playerStore';
@@ -14,7 +14,11 @@ interface SearchResultPayload {
   playlists: Playlist[];
 }
 
-export default function HeaderBar() {
+interface HeaderBarProps {
+  onOpenShortcuts?: () => void;
+}
+
+export default function HeaderBar({ onOpenShortcuts }: HeaderBarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -256,6 +260,17 @@ export default function HeaderBar() {
 
       {/* Right User Actions Area */}
       <div className="headerActionsArea">
+        {onOpenShortcuts && (
+          <button
+            className="retroIconCircleBtn"
+            onClick={onOpenShortcuts}
+            title="Keyboard Shortcuts (?)"
+            aria-label="Keyboard Shortcuts"
+          >
+            <Keyboard size={16} />
+          </button>
+        )}
+
         {user ? (
           <div className="headerUserPill">
             <button

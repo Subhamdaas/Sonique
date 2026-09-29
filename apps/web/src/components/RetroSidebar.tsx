@@ -8,15 +8,17 @@ import {
   Crown,
   Sparkles,
   ShieldCheck,
+  Keyboard,
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 interface RetroSidebarProps {
   onOpenEqualizer?: () => void;
+  onOpenShortcuts?: () => void;
 }
 
-export default function RetroSidebar({ onOpenEqualizer }: RetroSidebarProps) {
+export default function RetroSidebar({ onOpenEqualizer, onOpenShortcuts }: RetroSidebarProps) {
   const { user } = useAuthStore();
   const location = useLocation();
 
@@ -63,6 +65,17 @@ export default function RetroSidebar({ onOpenEqualizer }: RetroSidebarProps) {
             aria-label="Studio Equalizer"
           >
             <SlidersHorizontal size={20} />
+          </button>
+        )}
+
+        {onOpenShortcuts && (
+          <button
+            className="retroNavIconBtn"
+            onClick={onOpenShortcuts}
+            title="Keyboard Shortcuts (?)"
+            aria-label="Keyboard Shortcuts"
+          >
+            <Keyboard size={20} />
           </button>
         )}
 

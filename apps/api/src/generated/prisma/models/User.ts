@@ -223,6 +223,7 @@ export type UserWhereInput = {
   following?: Prisma.FollowListRelationFilter
   followers?: Prisma.FollowListRelationFilter
   podcastShows?: Prisma.PodcastShowListRelationFilter
+  playbackState?: Prisma.XOR<Prisma.PlaybackStateNullableScalarRelationFilter, Prisma.PlaybackStateWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -244,6 +245,7 @@ export type UserOrderByWithRelationInput = {
   following?: Prisma.FollowOrderByRelationAggregateInput
   followers?: Prisma.FollowOrderByRelationAggregateInput
   podcastShows?: Prisma.PodcastShowOrderByRelationAggregateInput
+  playbackState?: Prisma.PlaybackStateOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -268,6 +270,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   following?: Prisma.FollowListRelationFilter
   followers?: Prisma.FollowListRelationFilter
   podcastShows?: Prisma.PodcastShowListRelationFilter
+  playbackState?: Prisma.XOR<Prisma.PlaybackStateNullableScalarRelationFilter, Prisma.PlaybackStateWhereInput> | null
 }, "id" | "email" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -319,6 +322,7 @@ export type UserCreateInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -340,6 +344,7 @@ export type UserUncheckedCreateInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -361,6 +366,7 @@ export type UserUpdateInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -382,6 +388,7 @@ export type UserUncheckedUpdateInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -610,6 +617,20 @@ export type UserUpdateOneRequiredWithoutFollowersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFollowersInput, Prisma.UserUpdateWithoutFollowersInput>, Prisma.UserUncheckedUpdateWithoutFollowersInput>
 }
 
+export type UserCreateNestedOneWithoutPlaybackStateInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPlaybackStateInput, Prisma.UserUncheckedCreateWithoutPlaybackStateInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPlaybackStateInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPlaybackStateNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPlaybackStateInput, Prisma.UserUncheckedCreateWithoutPlaybackStateInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPlaybackStateInput
+  upsert?: Prisma.UserUpsertWithoutPlaybackStateInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPlaybackStateInput, Prisma.UserUpdateWithoutPlaybackStateInput>, Prisma.UserUncheckedUpdateWithoutPlaybackStateInput>
+}
+
 export type UserCreateWithoutRefreshTokensInput = {
   id?: string
   email: string
@@ -628,6 +649,7 @@ export type UserCreateWithoutRefreshTokensInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -648,6 +670,7 @@ export type UserUncheckedCreateWithoutRefreshTokensInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -684,6 +707,7 @@ export type UserUpdateWithoutRefreshTokensInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -704,6 +728,7 @@ export type UserUncheckedUpdateWithoutRefreshTokensInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTracksInput = {
@@ -724,6 +749,7 @@ export type UserCreateWithoutTracksInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTracksInput = {
@@ -744,6 +770,7 @@ export type UserUncheckedCreateWithoutTracksInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTracksInput = {
@@ -780,6 +807,7 @@ export type UserUpdateWithoutTracksInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTracksInput = {
@@ -800,6 +828,7 @@ export type UserUncheckedUpdateWithoutTracksInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLikedTracksInput = {
@@ -820,6 +849,7 @@ export type UserCreateWithoutLikedTracksInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLikedTracksInput = {
@@ -840,6 +870,7 @@ export type UserUncheckedCreateWithoutLikedTracksInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLikedTracksInput = {
@@ -876,6 +907,7 @@ export type UserUpdateWithoutLikedTracksInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLikedTracksInput = {
@@ -896,6 +928,7 @@ export type UserUncheckedUpdateWithoutLikedTracksInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPlaylistsInput = {
@@ -916,6 +949,7 @@ export type UserCreateWithoutPlaylistsInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPlaylistsInput = {
@@ -936,6 +970,7 @@ export type UserUncheckedCreateWithoutPlaylistsInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPlaylistsInput = {
@@ -972,6 +1007,7 @@ export type UserUpdateWithoutPlaylistsInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPlaylistsInput = {
@@ -992,6 +1028,7 @@ export type UserUncheckedUpdateWithoutPlaylistsInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutHistoryInput = {
@@ -1012,6 +1049,7 @@ export type UserCreateWithoutHistoryInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutHistoryInput = {
@@ -1032,6 +1070,7 @@ export type UserUncheckedCreateWithoutHistoryInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutHistoryInput = {
@@ -1068,6 +1107,7 @@ export type UserUpdateWithoutHistoryInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHistoryInput = {
@@ -1088,6 +1128,7 @@ export type UserUncheckedUpdateWithoutHistoryInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPodcastShowsInput = {
@@ -1108,6 +1149,7 @@ export type UserCreateWithoutPodcastShowsInput = {
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPodcastShowsInput = {
@@ -1128,6 +1170,7 @@ export type UserUncheckedCreateWithoutPodcastShowsInput = {
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPodcastShowsInput = {
@@ -1164,6 +1207,7 @@ export type UserUpdateWithoutPodcastShowsInput = {
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPodcastShowsInput = {
@@ -1184,6 +1228,7 @@ export type UserUncheckedUpdateWithoutPodcastShowsInput = {
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSubscriptionsInput = {
@@ -1204,6 +1249,7 @@ export type UserCreateWithoutSubscriptionsInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSubscriptionsInput = {
@@ -1224,6 +1270,7 @@ export type UserUncheckedCreateWithoutSubscriptionsInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSubscriptionsInput = {
@@ -1260,6 +1307,7 @@ export type UserUpdateWithoutSubscriptionsInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubscriptionsInput = {
@@ -1280,6 +1328,7 @@ export type UserUncheckedUpdateWithoutSubscriptionsInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFollowingInput = {
@@ -1300,6 +1349,7 @@ export type UserCreateWithoutFollowingInput = {
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
   followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowingInput = {
@@ -1320,6 +1370,7 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowingInput = {
@@ -1345,6 +1396,7 @@ export type UserCreateWithoutFollowersInput = {
   subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowersInput = {
@@ -1365,6 +1417,7 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+  playbackState?: Prisma.PlaybackStateUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowersInput = {
@@ -1401,6 +1454,7 @@ export type UserUpdateWithoutFollowingInput = {
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
   followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowingInput = {
@@ -1421,6 +1475,7 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutFollowersInput = {
@@ -1452,6 +1507,7 @@ export type UserUpdateWithoutFollowersInput = {
   subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowersInput = {
@@ -1471,6 +1527,107 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   history?: Prisma.ListeningHistoryUncheckedUpdateManyWithoutUserNestedInput
   subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
+  playbackState?: Prisma.PlaybackStateUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPlaybackStateInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  username?: string | null
+  avatarUrl?: string | null
+  role?: $Enums.UserRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tracks?: Prisma.TrackCreateNestedManyWithoutUploadedByInput
+  playlists?: Prisma.PlaylistCreateNestedManyWithoutOwnerInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutUserInput
+  likedTracks?: Prisma.LikeCreateNestedManyWithoutUserInput
+  history?: Prisma.ListeningHistoryCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionCreateNestedManyWithoutUserInput
+  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
+  podcastShows?: Prisma.PodcastShowCreateNestedManyWithoutCreatorInput
+}
+
+export type UserUncheckedCreateWithoutPlaybackStateInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  username?: string | null
+  avatarUrl?: string | null
+  role?: $Enums.UserRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tracks?: Prisma.TrackUncheckedCreateNestedManyWithoutUploadedByInput
+  playlists?: Prisma.PlaylistUncheckedCreateNestedManyWithoutOwnerInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+  likedTracks?: Prisma.LikeUncheckedCreateNestedManyWithoutUserInput
+  history?: Prisma.ListeningHistoryUncheckedCreateNestedManyWithoutUserInput
+  subscriptions?: Prisma.SubscriptionUncheckedCreateNestedManyWithoutUserInput
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
+  podcastShows?: Prisma.PodcastShowUncheckedCreateNestedManyWithoutCreatorInput
+}
+
+export type UserCreateOrConnectWithoutPlaybackStateInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPlaybackStateInput, Prisma.UserUncheckedCreateWithoutPlaybackStateInput>
+}
+
+export type UserUpsertWithoutPlaybackStateInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPlaybackStateInput, Prisma.UserUncheckedUpdateWithoutPlaybackStateInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPlaybackStateInput, Prisma.UserUncheckedCreateWithoutPlaybackStateInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPlaybackStateInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPlaybackStateInput, Prisma.UserUncheckedUpdateWithoutPlaybackStateInput>
+}
+
+export type UserUpdateWithoutPlaybackStateInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tracks?: Prisma.TrackUpdateManyWithoutUploadedByNestedInput
+  playlists?: Prisma.PlaylistUpdateManyWithoutOwnerNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutUserNestedInput
+  likedTracks?: Prisma.LikeUpdateManyWithoutUserNestedInput
+  history?: Prisma.ListeningHistoryUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUpdateManyWithoutUserNestedInput
+  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
+  podcastShows?: Prisma.PodcastShowUpdateManyWithoutCreatorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPlaybackStateInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tracks?: Prisma.TrackUncheckedUpdateManyWithoutUploadedByNestedInput
+  playlists?: Prisma.PlaylistUncheckedUpdateManyWithoutOwnerNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+  likedTracks?: Prisma.LikeUncheckedUpdateManyWithoutUserNestedInput
+  history?: Prisma.ListeningHistoryUncheckedUpdateManyWithoutUserNestedInput
+  subscriptions?: Prisma.SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   podcastShows?: Prisma.PodcastShowUncheckedUpdateManyWithoutCreatorNestedInput
 }
 
@@ -1596,6 +1753,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   followers?: boolean | Prisma.User$followersArgs<ExtArgs>
   podcastShows?: boolean | Prisma.User$podcastShowsArgs<ExtArgs>
+  playbackState?: boolean | Prisma.User$playbackStateArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1646,6 +1804,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   followers?: boolean | Prisma.User$followersArgs<ExtArgs>
   podcastShows?: boolean | Prisma.User$podcastShowsArgs<ExtArgs>
+  playbackState?: boolean | Prisma.User$playbackStateArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1663,6 +1822,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     following: Prisma.$FollowPayload<ExtArgs>[]
     followers: Prisma.$FollowPayload<ExtArgs>[]
     podcastShows: Prisma.$PodcastShowPayload<ExtArgs>[]
+    playbackState: Prisma.$PlaybackStatePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2077,6 +2237,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   following<T extends Prisma.User$followingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$followingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FollowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   followers<T extends Prisma.User$followersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$followersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FollowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   podcastShows<T extends Prisma.User$podcastShowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$podcastShowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PodcastShowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  playbackState<T extends Prisma.User$playbackStateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$playbackStateArgs<ExtArgs>>): Prisma.Prisma__PlaybackStateClient<runtime.Types.Result.GetResult<Prisma.$PlaybackStatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2721,6 +2882,25 @@ export type User$podcastShowsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.PodcastShowScalarFieldEnum | Prisma.PodcastShowScalarFieldEnum[]
+}
+
+/**
+ * User.playbackState
+ */
+export type User$playbackStateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PlaybackState
+   */
+  select?: Prisma.PlaybackStateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PlaybackState
+   */
+  omit?: Prisma.PlaybackStateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PlaybackStateInclude<ExtArgs> | null
+  where?: Prisma.PlaybackStateWhereInput
 }
 
 /**

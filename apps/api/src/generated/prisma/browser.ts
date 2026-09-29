@@ -82,3 +82,8 @@ export type Subscription = Prisma.SubscriptionModel
  * 
  */
 export type Follow = Prisma.FollowModel
+/**
+ * Model PlaybackState
+ * 
+ */
+export type PlaybackState = Prisma.PlaybackStateModel

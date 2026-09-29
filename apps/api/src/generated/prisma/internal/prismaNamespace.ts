@@ -409,7 +409,8 @@ export const ModelName = {
   PodcastShow: 'PodcastShow',
   PodcastEpisode: 'PodcastEpisode',
   Subscription: 'Subscription',
-  Follow: 'Follow'
+  Follow: 'Follow',
+  PlaybackState: 'PlaybackState'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -425,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken" | "artist" | "album" | "track" | "like" | "playlist" | "playlistTrack" | "listeningHistory" | "podcastShow" | "podcastEpisode" | "subscription" | "follow"
+    modelProps: "user" | "refreshToken" | "artist" | "album" | "track" | "like" | "playlist" | "playlistTrack" | "listeningHistory" | "podcastShow" | "podcastEpisode" | "subscription" | "follow" | "playbackState"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1391,6 +1392,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PlaybackState: {
+      payload: Prisma.$PlaybackStatePayload<ExtArgs>
+      fields: Prisma.PlaybackStateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PlaybackStateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PlaybackStateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>
+        }
+        findFirst: {
+          args: Prisma.PlaybackStateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PlaybackStateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>
+        }
+        findMany: {
+          args: Prisma.PlaybackStateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>[]
+        }
+        create: {
+          args: Prisma.PlaybackStateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>
+        }
+        createMany: {
+          args: Prisma.PlaybackStateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PlaybackStateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>[]
+        }
+        delete: {
+          args: Prisma.PlaybackStateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>
+        }
+        update: {
+          args: Prisma.PlaybackStateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>
+        }
+        deleteMany: {
+          args: Prisma.PlaybackStateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PlaybackStateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PlaybackStateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>[]
+        }
+        upsert: {
+          args: Prisma.PlaybackStateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PlaybackStatePayload>
+        }
+        aggregate: {
+          args: Prisma.PlaybackStateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePlaybackState>
+        }
+        groupBy: {
+          args: Prisma.PlaybackStateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlaybackStateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PlaybackStateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PlaybackStateCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1605,12 +1680,37 @@ export const FollowScalarFieldEnum = {
 export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof FollowScalarFieldEnum]
 
 
+export const PlaybackStateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  trackId: 'trackId',
+  positionSeconds: 'positionSeconds',
+  queue: 'queue',
+  queueIndex: 'queueIndex',
+  volume: 'volume',
+  isMuted: 'isMuted',
+  shuffle: 'shuffle',
+  repeatMode: 'repeatMode',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PlaybackStateScalarFieldEnum = (typeof PlaybackStateScalarFieldEnum)[keyof typeof PlaybackStateScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1627,6 +1727,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1723,6 +1832,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 /**
@@ -1889,6 +2012,7 @@ export type GlobalOmitConfig = {
   podcastEpisode?: Prisma.PodcastEpisodeOmit
   subscription?: Prisma.SubscriptionOmit
   follow?: Prisma.FollowOmit
+  playbackState?: Prisma.PlaybackStateOmit
 }
 
 /* Types for Logging */

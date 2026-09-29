@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Turntable from '../components/Turntable';
 import MusicCategories from '../components/MusicCategories';
-import MiddleFeatureSection from '../components/MiddleFeatureSection';
+import UpNextQueue from '../components/UpNextQueue';
 import FavoritePlaylists from '../components/FavoritePlaylists';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,14 +19,14 @@ export default function HomePage() {
         />
       </section>
 
-      {/* Right Column: Music Categories, Reserved Middle Section, and Favorite Playlists */}
+      {/* Right Column: Music Categories, Up Next Queue, and Favorite Playlists */}
       {!isTurntableExpanded && (
         <section className="discoveryStageArea" aria-label="Music Discovery">
           {/* Music Categories Carousel */}
           <MusicCategories onViewAll={() => navigate('/search')} />
 
-          {/* Reserved Middle Feature Section Placeholder (Requirement 4 & 27) */}
-          <MiddleFeatureSection />
+          {/* Up Next Playback Queue (Requirement 1 & 2) */}
+          <UpNextQueue />
 
           {/* Favorite Playlists Section */}
           <FavoritePlaylists />

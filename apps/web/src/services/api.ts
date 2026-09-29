@@ -331,6 +331,25 @@ export const api = {
     request<Track[]>(`/playback/history?limit=${limit}`),
   getTopTracks: (limit = 10) =>
     request<Track[]>(`/playback/top?limit=${limit}`),
+  getPlaybackState: () => request<any>('/playback/state'),
+  updatePlaybackState: (data: {
+    trackId?: string;
+    positionSeconds?: number;
+    queue?: any;
+    queueIndex?: number;
+    volume?: number;
+    isMuted?: boolean;
+    shuffle?: boolean;
+    repeatMode?: string;
+  }) =>
+    request<any>('/playback/state', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  deletePlaybackState: () =>
+    request<{ success: boolean }>('/playback/state', {
+      method: 'DELETE',
+    }),
 
   // Podcasts
   getPodcastShows: (category?: string) =>

@@ -40,6 +40,7 @@ model User {
   following       Follow[]           @relation("UserFollowing")
   followers       Follow[]           @relation("UserFollowers")
   podcastShows    PodcastShow[]
+  playbackState   PlaybackState?
 
   @@index([createdAt])
 }
@@ -244,4 +245,22 @@ model Follow {
   @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
+}
+
+model PlaybackState {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  trackId         String?
+  positionSeconds Float    @default(0)
+  queue           Json?    @default("[]")
+  queueIndex      Int      @default(0)
+  volume          Float    @default(0.8)
+  isMuted         Boolean  @default(false)
+  shuffle         Boolean  @default(false)
+  repeatMode      String   @default("off")
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

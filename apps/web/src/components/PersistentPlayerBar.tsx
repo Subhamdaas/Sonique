@@ -85,13 +85,24 @@ export default function PersistentPlayerBar() {
           >
             <SkipBack size={16} />
           </button>
-          <button
-            className="playerBarPlayBtn"
-            onClick={player.toggle}
-            aria-label={isPlaying ? 'Pause' : 'Play'}
-          >
-            {isPlaying ? <Pause size={18} fill="#000" /> : <Play size={18} fill="#000" style={{ marginLeft: 2 }} />}
-          </button>
+          {player.isAutoplayBlocked ? (
+            <button
+              className="playerBarPlayBtn resumeBlockedBtn"
+              onClick={player.resumeAutoplay}
+              aria-label="Resume playback"
+              title="Autoplay paused by browser. Click to resume."
+            >
+              <Play size={18} fill="#000" style={{ marginLeft: 2 }} />
+            </button>
+          ) : (
+            <button
+              className="playerBarPlayBtn"
+              onClick={player.toggle}
+              aria-label={isPlaying ? 'Pause' : 'Play'}
+            >
+              {isPlaying ? <Pause size={18} fill="#000" /> : <Play size={18} fill="#000" style={{ marginLeft: 2 }} />}
+            </button>
+          )}
           <button
             className="playerBarIconBtn"
             onClick={player.next}

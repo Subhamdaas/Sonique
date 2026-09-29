@@ -144,6 +144,7 @@ class RetroAudioEngine {
         return;
       }
       console.warn('Playback gesture needed or error:', err.message);
+      throw err;
     }
   }
 
