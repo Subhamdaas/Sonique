@@ -92,17 +92,18 @@ input {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 16px;
+  width: 100%;
+  padding: 20px 24px;
   background: radial-gradient(circle at 50% 30%, #1a1c22 0%, #0a0b0d 100%);
 }
 
 .retroConsoleBezel {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1240px;
   background: linear-gradient(175deg, var(--bg-console-light) 0%, var(--bg-console) 45%, var(--bg-console-dark) 100%);
   border-radius: 28px;
   box-shadow: var(--shadow-console);
-  padding: 20px 26px 22px 26px;
+  padding: 22px 28px 24px 28px;
   position: relative;
   border: 1.5px solid rgba(255, 255, 255, 0.7);
   display: flex;
@@ -410,8 +411,8 @@ input {
 
 .retroGridStage {
   display: grid;
-  grid-template-columns: 385px 1fr;
-  gap: 26px;
+  grid-template-columns: minmax(385px, 430px) 1fr;
+  gap: 28px;
   align-items: flex-start;
 }
 
@@ -431,12 +432,12 @@ input {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 385px;
+  max-width: 430px;
   margin: 0;
 }
 
 .turntableContainer.expanded {
-  max-width: 520px;
+  max-width: 540px;
   margin: 0 auto;
 }
 
@@ -444,7 +445,7 @@ input {
 .turntableChassis {
   position: relative;
   width: 100%;
-  max-width: 385px;
+  max-width: 430px;
   aspect-ratio: 1.05 / 1;
   background: linear-gradient(145deg, #f2f4f7 0%, #d8dade 45%, #b6b9c0 100%);
   border-radius: 20px;
@@ -851,25 +852,18 @@ input {
 
 .cartridgeHead {
   position: absolute;
-  bottom: -4px;
-  left: -8px;
-  width: 20px;
-  height: 28px;
-  background: linear-gradient(135deg, #111 0%, #333 100%);
-  border-radius: 3px;
-  transform: rotate(-35deg);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
-  border: 0.5px solid #888;
+  bottom: -20px;
+  left: -13px;
+  width: 30px;
+  height: 48px;
+  transform: rotate(-32deg);
+  transform-origin: top center;
+  pointer-events: none;
 }
 
-.needleTip {
-  position: absolute;
-  bottom: 2px;
-  left: 8px;
-  width: 4px;
-  height: 6px;
-  background: #ffcc00;
-  border-radius: 1px;
+.technicsHeadshellSvg {
+  display: block;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
 }
 
 /* ============================================================
@@ -2028,41 +2022,98 @@ input {
 }
 
 /* ============================================================
-   RESPONSIVE ADAPTATIONS
+   RESPONSIVE ADAPTATIONS (MOBILE, TABLET, LAPTOP, FULLSCREEN WEB)
    ============================================================ */
-@media (max-width: 1024px) {
+/* Laptops & Tablets Landscape (860px - 1080px) */
+@media (max-width: 1080px) {
   .retroConsoleBezel {
-    padding: 20px;
+    padding: 18px 22px;
+    max-width: 100%;
   }
   .retroGridStage {
-    grid-template-columns: 1fr;
-    gap: 28px;
+    grid-template-columns: 370px 1fr;
+    gap: 22px;
+  }
+  .turntableChassis {
+    max-width: 370px;
+  }
+  .albumCardItem {
+    flex: 0 0 135px;
   }
 }
 
-@media (max-width: 640px) {
+/* Tablets Portrait (700px - 859px) */
+@media (max-width: 859px) {
+  .retroConsoleBody {
+    gap: 16px;
+  }
+  .retroGridStage {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .turntableContainer {
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .discoveryStageArea {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+/* Mobile Devices (< 700px) */
+@media (max-width: 699px) {
   .retroWindowWrapper {
-    padding: 10px;
+    padding: 8px;
+    min-height: 100vh;
   }
   .retroConsoleBezel {
-    border-radius: 20px;
-    padding: 16px;
+    border-radius: 18px;
+    padding: 14px 12px;
+  }
+  .retroHeaderBar {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+  .searchPillContainer {
+    order: 3;
+    max-width: 100%;
+    width: 100%;
   }
   .retroConsoleBody {
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
   }
   .retroSidebarNav {
     flex-direction: row;
     width: 100%;
     justify-content: space-around;
-    padding-top: 0;
+    padding-top: 4px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-bottom: 8px;
+  }
+  .retroGridStage {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .turntableContainer {
+    max-width: 100%;
+    margin: 0;
+  }
+  .turntableChassis {
+    max-width: 100%;
+    padding: 12px;
   }
   .trackTitlePixel {
-    font-size: 22px;
+    font-size: 20px;
   }
   .categoriesHeadingPixel {
-    font-size: 22px;
+    font-size: 21px;
+  }
+  .albumCardItem {
+    flex: 0 0 128px;
   }
 }
 

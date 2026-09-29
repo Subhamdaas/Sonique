@@ -291,10 +291,113 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
 
           {/* S-Shaped Tone Arm Rod */}
           <div className="tonearmArm">
-            {/* Headshell & Needle Cartridge */}
+            {/* Headshell & Needle Cartridge (Perforated Silver Technics DJ Headshell) */}
             <div className="cartridgeHead">
-              <div className="cartridgeBody" />
-              <div className="needleTip" />
+              <svg
+                viewBox="0 0 54 84"
+                width="30"
+                height="48"
+                className="technicsHeadshellSvg"
+                style={{ overflow: 'visible' }}
+              >
+                <defs>
+                  {/* Chrome Collar Gradient */}
+                  <linearGradient id="collarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#444850" />
+                    <stop offset="25%" stopColor="#d8dde6" />
+                    <stop offset="50%" stopColor="#ffffff" />
+                    <stop offset="75%" stopColor="#a4abb8" />
+                    <stop offset="100%" stopColor="#32363e" />
+                  </linearGradient>
+
+                  {/* Brushed Silver Headshell Body Gradient */}
+                  <linearGradient id="headshellGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="35%" stopColor="#e4e8ef" />
+                    <stop offset="70%" stopColor="#b6bcc8" />
+                    <stop offset="100%" stopColor="#767c88" />
+                  </linearGradient>
+
+                  {/* Cartridge Underside Shadow */}
+                  <linearGradient id="cartridgeBodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#15171a" />
+                    <stop offset="50%" stopColor="#2c3038" />
+                    <stop offset="100%" stopColor="#0f1012" />
+                  </linearGradient>
+
+                  {/* Stylus Needle */}
+                  <linearGradient id="stylusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="40%" stopColor="#ffd700" />
+                    <stop offset="100%" stopColor="#b8860b" />
+                  </linearGradient>
+
+                  {/* Soft Metallic Drop Shadow */}
+                  <filter id="headshellShadow" x="-30%" y="-20%" width="160%" height="160%">
+                    <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" floodColor="#000" floodOpacity="0.45" />
+                  </filter>
+                </defs>
+
+                {/* Dark Cartridge Body underneath */}
+                <rect x="14" y="24" width="18" height="40" rx="3" fill="url(#cartridgeBodyGrad)" filter="url(#headshellShadow)" />
+
+                {/* Diamond Stylus Needle Tip angled onto vinyl */}
+                <path d="M 21 62 L 25 74 L 23 75 L 19 63 Z" fill="url(#stylusGrad)" />
+                <circle cx="24" cy="74" r="1.5" fill="#ffffff" />
+
+                {/* S-Arm Ribbed Connector Collar */}
+                <rect x="15" y="0" width="16" height="13" rx="2" fill="url(#collarGrad)" />
+                <line x1="15" y1="3" x2="31" y2="3" stroke="#222" strokeWidth="1" opacity="0.65" />
+                <line x1="15" y1="6" x2="31" y2="6" stroke="#222" strokeWidth="1" opacity="0.65" />
+                <line x1="15" y1="9" x2="31" y2="9" stroke="#222" strokeWidth="1" opacity="0.65" />
+
+                {/* Curved Metallic Silver Technics Headshell Body */}
+                <path
+                  d="M 12 11
+                     C 12 9, 34 9, 34 11
+                     L 36 46
+                     C 36 53, 30 57, 23 57
+                     C 16 57, 10 53, 10 46
+                     Z"
+                  fill="url(#headshellGrad)"
+                  stroke="#7c828e"
+                  strokeWidth="0.8"
+                  filter="url(#headshellShadow)"
+                />
+
+                {/* Center Ridge Highlight */}
+                <line x1="23" y1="13" x2="23" y2="53" stroke="#ffffff" strokeWidth="1" opacity="0.75" />
+
+                {/* Color-coded Lead Wires peeking through (Red, Green, Blue, White) */}
+                <circle cx="17" cy="21" r="1.8" fill="#e53935" />
+                <circle cx="29" cy="21" r="1.8" fill="#43a047" />
+                <circle cx="17" cy="29" r="1.8" fill="#1e88e5" />
+                <circle cx="29" cy="29" r="1.8" fill="#ffffff" stroke="#888" strokeWidth="0.5" />
+
+                {/* Perforation Grill Holes (Technics DJ signature holes) */}
+                <rect x="15" y="19" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+                <rect x="15" y="27" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+                <rect x="15" y="35" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+
+                <rect x="27" y="19" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+                <rect x="27" y="27" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+                <rect x="27" y="35" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+
+                {/* Front Weight Slot Cutout */}
+                <rect x="18" y="43" width="10" height="4" rx="2" fill="#181a1e" stroke="#4a4f58" strokeWidth="0.6" />
+
+                {/* Chrome Finger Lift Handle (Curving right) */}
+                <path
+                  d="M 33 30
+                     C 40 30, 47 28, 47 22
+                     C 47 18, 42 18, 40 22"
+                  fill="none"
+                  stroke="url(#collarGrad)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  filter="url(#headshellShadow)"
+                />
+              </svg>
             </div>
           </div>
         </div>
