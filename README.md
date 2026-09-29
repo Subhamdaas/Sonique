@@ -1,4 +1,4 @@
-# 🎵 Sonique — Next-Gen Music & Podcast Streaming Platform
+#  Sonique —  Music & Podcast Streaming Platform
 
 **Sonique** is a modern, distributed full-stack music and podcast streaming platform built with NestJS, Prisma ORM, PostgreSQL (Supabase), Redis, React + Vite (TypeScript), and React Native (Expo).
 
@@ -6,7 +6,7 @@
 
 ##  Key Highlights & Features
 
-- ** Expansive 1,770+ Track Catalog**: Seeded with rich multi-lingual discographies across:
+- ** now the small Track Catalog**: Seeded with rich multi-lingual discographies across:
   - **90's Bollywood & Evergreen Hindi**: Kumar Sanu, Alka Yagnik, Udit Narayan, Kishore Kumar, Lata Mangeshkar, R.D. Burman, Sonu Nigam, KK, Mohit Chauhan, Indipop, and Bappi Lahiri.
   - **Kannada Sandalwood & Folk**: Dr. Rajkumar, S.P. Balasubrahmanyam, Sanjith Hegde, Armaan Malik, Vijay Prakash, KGF, Kantara, and Bhavageethe.
   - **Odia & Ollywood Classics & Folk**: Akshaya Mohanty, Pranab Patnaik, Humane Sagar, Asima Panda, Sambalpuri Dalkhai, and Gita Govinda.
