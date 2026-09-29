@@ -81,3 +81,9 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 
+# Root forwarders and archives
+/src
+legacy-root-frontend.zip
+/index.html
+
+

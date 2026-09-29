@@ -15,6 +15,8 @@ import {
 import { LoginPage, RegisterPage } from './pages/AuthPages';
 import { ProfilePage, CreatorPage, AdminPage, PricingPage } from './pages/OtherPages';
 import ListenTogetherPage from './pages/ListenTogetherPage';
+import PodcastsPage from './pages/PodcastsPage';
+import LivePage from './pages/LivePage';
 import { api } from './services/api';
 import './styles.css';
 
@@ -109,6 +111,9 @@ export default function App() {
       <Routes>
         <Route element={<AppShell />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/music" element={<HomePage />} />
+          <Route path="/podcasts" element={<PodcastsPage />} />
+          <Route path="/live" element={<LivePage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/browse" element={<BrowsePage />} />
           <Route path="/listen-together" element={<ListenTogetherPage />} />
@@ -121,6 +126,7 @@ export default function App() {
           <Route path="/podcast/:id" element={<PodcastPage />} />
           <Route path="/episode/:id" element={<EpisodePage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<ProfilePage />} />
           <Route path="/premium" element={<PricingPage />} />
           <Route path="/creator" element={<CreatorPage />} />
           <Route path="/admin" element={<AdminPage />} />

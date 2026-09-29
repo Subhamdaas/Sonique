@@ -410,12 +410,16 @@ export function PodcastPage() {
   const [show, setShow] = useState<PodcastShow | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFollowed, setIsFollowed] = useState(false);
   const player = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
     setError(null);
+    const followedShows: string[] = JSON.parse(localStorage.getItem('sonique_followed_podcasts') || '[]');
+    setIsFollowed(followedShows.includes(id));
+
     api
       .getPodcastShow(id)
       .then((data) => {
@@ -428,6 +432,20 @@ export function PodcastPage() {
       });
   }, [id]);
 
+  const toggleFollow = () => {
+    if (!id) return;
+    const followedShows: string[] = JSON.parse(localStorage.getItem('sonique_followed_podcasts') || '[]');
+    let updated: string[];
+    if (isFollowed) {
+      updated = followedShows.filter((sId) => sId !== id);
+      setIsFollowed(false);
+    } else {
+      updated = [...followedShows, id];
+      setIsFollowed(true);
+    }
+    localStorage.setItem('sonique_followed_podcasts', JSON.stringify(updated));
+  };
+
   if (loading) {
     return <div className="retroLoadingMsg">Loading podcast...</div>;
   }
@@ -437,8 +455,8 @@ export function PodcastPage() {
       <div className="retroEmptyStateContainer">
         <h2>Podcast Not Found</h2>
         <p>{error || 'The requested podcast show does not exist.'}</p>
-        <button className="retroBlackBtn" onClick={() => navigate('/browse')}>
-          Browse Shows
+        <button className="retroBlackBtn" onClick={() => navigate('/podcasts')}>
+          Browse Podcasts
         </button>
       </div>
     );
@@ -464,13 +482,28 @@ export function PodcastPage() {
           )}
         </div>
         <div className="retroDetailInfo">
-          <span className="retroDetailBadge">PODCAST SHOW</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span className="retroDetailBadge">PODCAST SHOW</span>
+            {show.category && (
+              <span className="retroDetailCategoryPill">{show.category}</span>
+            )}
+          </div>
           <h1 className="retroDetailTitle">{show.title}</h1>
           {show.description && <p className="retroDetailDesc">{show.description}</p>}
           <div className="retroDetailMeta">
             <strong>{show.author}</strong>
             <span>•</span>
             <span>{episodes.length} episodes</span>
+          </div>
+
+          <div style={{ marginTop: '16px' }}>
+            <button
+              className={`retroFollowBtn ${isFollowed ? 'following' : ''}`}
+              onClick={toggleFollow}
+              aria-label={isFollowed ? 'Unfollow show' : 'Follow show'}
+            >
+              {isFollowed ? '✓ FOLLOWING' : '+ FOLLOW SHOW'}
+            </button>
           </div>
         </div>
       </div>
@@ -479,30 +512,57 @@ export function PodcastPage() {
         <h2 className="retroSectionSubheading">All Episodes</h2>
         {episodes.length > 0 ? (
           <div className="retroEpisodesList">
-            {episodes.map((ep) => (
-              <div
-                key={ep.id}
-                className="retroEpisodeRow"
-                onClick={() => player.setCurrent(ep as any)}
-                role="button"
-                tabIndex={0}
-                aria-label={`Play episode: ${ep.title}`}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') player.setCurrent(ep as any);
-                }}
-              >
-                <button className="episodePlayBtn" aria-label="Play Episode">
-                  <Play size={16} fill="#000" style={{ marginLeft: 2 }} />
-                </button>
-                <div className="episodeMeta">
-                  <span className="episodeTitle">{ep.title}</span>
-                  {ep.description && <p className="episodeDesc">{ep.description}</p>}
-                  <span className="episodeDuration">
-                    {Math.floor((ep.duration || 1800) / 60)} mins
-                  </span>
+            {episodes.map((ep) => {
+              const isCurrentEp = player.current?.id === ep.id && player.isPlaying;
+              return (
+                <div
+                  key={ep.id}
+                  className={`retroEpisodeRow ${player.current?.id === ep.id ? 'active' : ''}`}
+                  onClick={() => {
+                    player.setCurrent({
+                      id: ep.id,
+                      title: ep.title,
+                      artist: show.title || show.author,
+                      duration: ep.duration,
+                      audioUrl: ep.audioUrl,
+                      coverUrl: ep.coverUrl || show.coverUrl,
+                      type: 'episode',
+                    });
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Play episode: ${ep.title}`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      player.setCurrent({
+                        id: ep.id,
+                        title: ep.title,
+                        artist: show.title || show.author,
+                        duration: ep.duration,
+                        audioUrl: ep.audioUrl,
+                        coverUrl: ep.coverUrl || show.coverUrl,
+                        type: 'episode',
+                      });
+                    }
+                  }}
+                >
+                  <button className="episodePlayBtn" aria-label="Play Episode">
+                    {isCurrentEp ? (
+                      <Pause size={16} fill="#000" />
+                    ) : (
+                      <Play size={16} fill="#000" style={{ marginLeft: 2 }} />
+                    )}
+                  </button>
+                  <div className="episodeMeta">
+                    <span className="episodeTitle">{ep.title}</span>
+                    {ep.description && <p className="episodeDesc">{ep.description}</p>}
+                    <span className="episodeDuration">
+                      {Math.floor((ep.duration || 1800) / 60)} mins ({Math.floor((ep.duration || 1800) / 60)}:00)
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="retroEmptyStateContainer">

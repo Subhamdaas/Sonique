@@ -89,6 +89,7 @@ export interface PodcastEpisode {
   date?: string; // compatibility
   season?: number; // compatibility
   show?: PodcastShow;
+  artist?: string; // show/author compatibility for player
 }
 
 export type Episode = PodcastEpisode;

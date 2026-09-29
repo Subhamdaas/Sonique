@@ -10,6 +10,8 @@ import {
   Music2,
   Disc3,
   Plus,
+  Mic2,
+  Radio,
 } from 'lucide-react';
 import { usePlayerStore } from '../store/playerStore';
 import type { Playable } from '../types';
@@ -153,6 +155,19 @@ export default function UpNextQueue() {
               <div className="queueMetaColumn">
                 <div className="nowPlayingBadgeRow">
                   <span className="nowPlayingBadge">NOW PLAYING</span>
+                  {current.type === 'episode' ? (
+                    <span className="queueContentTypeBadge podcastBadge">
+                      <Mic2 size={9} /> <span>EPISODE</span>
+                    </span>
+                  ) : (current as any).type === 'live' ? (
+                    <span className="queueContentTypeBadge liveBadge">
+                      <Radio size={9} /> <span>LIVE</span>
+                    </span>
+                  ) : (
+                    <span className="queueContentTypeBadge musicBadge">
+                      <span>♪</span> <span>TRACK</span>
+                    </span>
+                  )}
                 </div>
                 <span className="queueTrackTitle">{current.title}</span>
                 <span className="queueTrackArtist">
@@ -214,6 +229,21 @@ export default function UpNextQueue() {
                     </button>
                   </div>
                   <div className="queueMetaColumn">
+                    <div className="queueItemTypeRow">
+                      {track.type === 'episode' ? (
+                        <span className="queueContentTypeBadge podcastBadge">
+                          <Mic2 size={9} /> <span>EPISODE</span>
+                        </span>
+                      ) : (track as any).type === 'live' ? (
+                        <span className="queueContentTypeBadge liveBadge">
+                          <Radio size={9} /> <span>LIVE</span>
+                        </span>
+                      ) : (
+                        <span className="queueContentTypeBadge musicBadge">
+                          <span>♪</span> <span>TRACK</span>
+                        </span>
+                      )}
+                    </div>
                     <span className="queueTrackTitle">{track.title}</span>
                     <span className="queueTrackArtist">
                       {(track as any).artist || (track as any).show?.title || 'Unknown Artist'}

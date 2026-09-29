@@ -360,6 +360,15 @@ export const api = {
   getPodcastEpisode: (id: string) =>
     request<PodcastEpisode>(`/podcasts/episodes/${id}`),
 
+  // Live Rooms & Broadcasts
+  getRooms: () => request<any[]>('/rooms'),
+  getRoom: (code: string) => request<any>(`/rooms/${code}`),
+  createRoom: (input: { name: string; genre?: string; isPublic?: boolean; hostId?: string; hostName?: string }) =>
+    request<any>('/rooms', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+
   // Subscriptions
   getCurrentSubscription: () => request<any>('/subscriptions/current'),
   upgradeSubscription: (plan?: 'MONTHLY' | 'ANNUAL') =>

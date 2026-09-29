@@ -9,6 +9,9 @@ import {
   Sparkles,
   ShieldCheck,
   Keyboard,
+  Disc3,
+  Mic2,
+  Settings,
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -23,11 +26,13 @@ export default function RetroSidebar({ onOpenEqualizer, onOpenShortcuts }: Retro
   const location = useLocation();
 
   const navItems = [
-    { to: '/', label: 'Home Dashboard', icon: <Home size={20} /> },
-    { to: '/search', label: 'Explore & Search', icon: <Compass size={20} /> },
-    { to: '/library', label: 'Your Library', icon: <Library size={20} /> },
+    { to: '/', label: 'Home', icon: <Home size={20} /> },
+    { to: '/music', label: 'Music Experience', icon: <Disc3 size={20} /> },
+    { to: '/podcasts', label: 'Podcasts & Spoken Audio', icon: <Mic2 size={20} /> },
+    { to: '/live', label: 'Live Broadcasts & Rooms', icon: <Radio size={20} /> },
+    { to: '/library', label: 'Library', icon: <Library size={20} /> },
     { to: '/liked-songs', label: 'Liked Songs', icon: <Heart size={20} /> },
-    { to: '/listen-together', label: 'Listen Together (Sync Rooms)', icon: <Radio size={20} /> },
+    { to: '/settings', label: 'Settings', icon: <Settings size={20} /> },
   ];
 
   return (
