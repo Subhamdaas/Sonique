@@ -102,7 +102,7 @@ export default function RetroDashboard() {
               <div className="retroSubpageStage">
                 <MusicCategories onViewAll={() => setActiveTab('music')} />
                 <div style={{ marginTop: 24 }}>
-                  <FavoritePlaylists />
+                  <FavoritePlaylists limit={undefined} />
                 </div>
               </div>
             )}

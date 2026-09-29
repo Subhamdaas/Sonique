@@ -4,10 +4,12 @@ import { usePlayerStore } from '../store/playerStore';
 
 interface FavoritePlaylistsProps {
   onPlaylistSelect?: (playlist: FavoritePlaylist) => void;
+  limit?: number;
 }
 
-export default function FavoritePlaylists({ onPlaylistSelect }: FavoritePlaylistsProps) {
+export default function FavoritePlaylists({ onPlaylistSelect, limit = 2 }: FavoritePlaylistsProps) {
   const player = usePlayerStore();
+  const displayedPlaylists = limit ? favoritePlaylists.slice(0, limit) : favoritePlaylists;
 
   const handleTogglePlaylist = (pl: FavoritePlaylist, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -30,7 +32,7 @@ export default function FavoritePlaylists({ onPlaylistSelect }: FavoritePlaylist
 
       {/* Playlists List */}
       <div className="playlistsListWrap">
-        {favoritePlaylists.map((pl) => {
+        {displayedPlaylists.map((pl) => {
           const isThisPlaylistPlaying = player.isPlaying && player.activePlaylistId === pl.id;
 
           return (

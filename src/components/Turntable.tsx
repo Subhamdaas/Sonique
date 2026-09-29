@@ -5,14 +5,10 @@ import {
   SkipBack,
   SkipForward,
   Shuffle,
-  Repeat,
   Maximize2,
   Minimize2,
   MessageSquare,
   Heart,
-  Volume2,
-  VolumeX,
-  ListMusic,
 } from 'lucide-react';
 import { usePlayerStore } from '../store/playerStore';
 import { useLibraryStore } from '../store/libraryStore';
@@ -39,13 +35,6 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
 
   const current = player.current;
   const isPlaying = player.isPlaying;
-
-  const queue = player.queue && player.queue.length > 0 ? player.queue : [];
-  const currentIdx = queue.findIndex((t) => t.id === current?.id);
-  const upNextTracks =
-    currentIdx !== -1 && currentIdx < queue.length - 1
-      ? queue.slice(currentIdx + 1, currentIdx + 4)
-      : queue.filter((t) => t.id !== current?.id).slice(0, 3);
 
   // Waveform bars data (36 bars with natural variation)
   const barHeights = [
@@ -324,9 +313,6 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
           <span className="genrePillBlack">
             {((current as any)?.genre) || ((current as any)?.badge) || 'Classic'}
           </span>
-          <span className="artistSubtleText">
-            {typeof (current as any)?.artist === 'string' ? (current as any).artist : 'Classic Sound'}
-          </span>
         </div>
       </div>
 
@@ -418,67 +404,7 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
           <Shuffle size={19} color={player.shuffle ? '#000' : '#444'} />
           {player.shuffle && <span className="shuffleActiveDot" />}
         </button>
-
-        {/* Repeat Mode Button (Off -> All -> One) */}
-        <button
-          className={`transportIconBtn ${player.repeat !== 'off' ? 'active' : ''}`}
-          onClick={player.cycleRepeat}
-          title={`Repeat: ${player.repeat.toUpperCase()} (Click to cycle)`}
-        >
-          <Repeat size={19} color={player.repeat !== 'off' ? '#000' : '#444'} />
-          {player.repeat === 'one' && <span className="repeatModeBadge">1</span>}
-          {player.repeat === 'all' && <span className="repeatModeBadge">ALL</span>}
-        </button>
-
-        {/* Audio Volume / Mute Button */}
-        <button
-          className="transportIconBtn"
-          onClick={handleMuteToggle}
-          title={isMuted ? 'Unmute' : 'Mute'}
-        >
-          {isMuted ? <VolumeX size={19} color="#777" /> : <Volume2 size={19} color="#000" />}
-        </button>
       </div>
-
-      {/* Up Next in Queue mini-panel to fill blank space with upcoming tracks */}
-      {!isExpanded && upNextTracks.length > 0 && (
-        <div className="turntableQueueSection">
-          <div className="turntableQueueHeader">
-            <span className="turntableQueueTitle">
-              <ListMusic size={13} style={{ display: 'inline', verticalAlign: -1, marginRight: 5 }} />
-              Up Next
-            </span>
-            <span className="turntableQueueBadge">
-              {queue.length} in queue
-            </span>
-          </div>
-          <div className="turntableQueueList">
-            {upNextTracks.map((trk) => {
-              const mins = Math.floor((trk.duration || 215) / 60);
-              const secs = ((trk.duration || 215) % 60).toString().padStart(2, '0');
-              return (
-                <div
-                  key={trk.id}
-                  className="turntableQueueItem"
-                  onClick={() => player.selectTrack(trk as any, true)}
-                  title={`Play: ${trk.title} by ${(trk as any).artist || 'Artist'}`}
-                >
-                  <img
-                    src={(trk as any).coverUrl || (trk as any).art || ''}
-                    alt={trk.title}
-                    className="queueItemThumb"
-                  />
-                  <div className="queueItemMeta">
-                    <span className="queueItemTitle">{trk.title}</span>
-                    <span className="queueItemArtist">{(trk as any).artist || (trk as any).showTitle || 'Artist'}</span>
-                  </div>
-                  <span className="queueItemTime">{mins}:{secs}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

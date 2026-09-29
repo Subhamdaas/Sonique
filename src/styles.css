@@ -98,11 +98,11 @@ input {
 
 .retroConsoleBezel {
   width: 100%;
-  max-width: 1140px;
+  max-width: 1000px;
   background: linear-gradient(175deg, var(--bg-console-light) 0%, var(--bg-console) 45%, var(--bg-console-dark) 100%);
   border-radius: 28px;
   box-shadow: var(--shadow-console);
-  padding: 20px 28px 28px 28px;
+  padding: 20px 26px 22px 26px;
   position: relative;
   border: 1.5px solid rgba(255, 255, 255, 0.7);
   display: flex;
@@ -410,8 +410,8 @@ input {
 
 .retroGridStage {
   display: grid;
-  grid-template-columns: 460px 1fr;
-  gap: 36px;
+  grid-template-columns: 385px 1fr;
+  gap: 26px;
   align-items: flex-start;
 }
 
@@ -431,8 +431,8 @@ input {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 440px;
-  margin: 0 auto;
+  max-width: 385px;
+  margin: 0;
 }
 
 .turntableContainer.expanded {
@@ -444,8 +444,8 @@ input {
 .turntableChassis {
   position: relative;
   width: 100%;
-  max-width: 410px;
-  aspect-ratio: 1.04 / 1;
+  max-width: 385px;
+  aspect-ratio: 1.05 / 1;
   background: linear-gradient(145deg, #f2f4f7 0%, #d8dade 45%, #b6b9c0 100%);
   border-radius: 20px;
   box-shadow: var(--shadow-turntable);
@@ -876,10 +876,10 @@ input {
    TRACK INFO & LIKE BADGE (UNDER TURNTABLE)
    ============================================================ */
 .trackInfoSection {
-  margin-top: 16px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .trackMainRow {
@@ -891,14 +891,14 @@ input {
 
 .trackTitlePixel {
   font-family: var(--font-heading);
-  font-size: 23px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--color-black);
   letter-spacing: -0.3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 320px;
+  max-width: 300px;
 }
 
 .likeCountBadge {
@@ -907,7 +907,7 @@ input {
   gap: 6px;
   background: transparent;
   color: var(--color-black);
-  padding: 3px 7px;
+  padding: 2px 6px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -923,7 +923,7 @@ input {
 
 .likeNumber {
   font-family: var(--font-digital);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-black);
 }
@@ -941,14 +941,14 @@ input {
   font-family: var(--font-heading);
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 12px;
+  padding: 2px 12px;
   border-radius: 9999px;
   letter-spacing: 0.5px;
   display: inline-block;
 }
 
 .artistSubtleText {
-  font-size: 12.5px;
+  font-size: 12px;
   color: #313640;
   font-weight: 600;
 }
@@ -959,18 +959,18 @@ input {
 .waveformContainer {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-  padding: 0 4px;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 0 2px;
 }
 
 .timePixel {
   font-family: var(--font-digital);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-black);
   letter-spacing: 0.5px;
-  min-width: 38px;
+  min-width: 36px;
 }
 
 .timePixel.current {
@@ -986,7 +986,7 @@ input {
   align-items: center;
   gap: 3px;
   flex: 1;
-  height: 32px;
+  height: 28px;
   cursor: pointer;
   padding: 2px 0;
 }
@@ -1017,8 +1017,8 @@ input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
-  padding: 0 4px;
+  margin-top: 12px;
+  padding: 0 6px;
 }
 
 .transportIconBtn {
@@ -1074,8 +1074,8 @@ input {
 
 /* Big Black Circular Play Button */
 .bigPlayButton {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: var(--color-black);
   color: var(--color-white);
@@ -1096,128 +1096,19 @@ input {
 }
 
 /* ============================================================
-   UP NEXT QUEUE (FILLS SPACE UNDER TURNTABLE CONTROLS)
-   ============================================================ */
-.turntableQueueSection {
-  margin-top: 14px;
-  background: rgba(0, 0, 0, 0.04);
-  border: 1.5px solid rgba(0, 0, 0, 0.12);
-  border-radius: 14px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.turntableQueueHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.turntableQueueTitle {
-  font-family: var(--font-heading);
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--color-black);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-}
-
-.turntableQueueBadge {
-  font-family: var(--font-digital);
-  font-size: 10px;
-  font-weight: 700;
-  color: #555b66;
-}
-
-.turntableQueueList {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.turntableQueueItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 5px 8px;
-  border-radius: 9px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.turntableQueueItem:hover {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(0, 0, 0, 0.2);
-  transform: translateX(2px);
-}
-
-.queueItemThumb {
-  width: 32px;
-  height: 32px;
-  border-radius: 7px;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-}
-
-.queueItemMeta {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  gap: 1px;
-}
-
-.queueItemTitle {
-  font-family: var(--font-heading);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-black);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
-}
-
-.queueItemArtist {
-  font-size: 10px;
-  color: #4a515e;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.queueItemTime {
-  font-family: var(--font-digital);
-  font-size: 10.5px;
-  color: #4a515e;
-  font-weight: 700;
-}
-
-/* ============================================================
    RIGHT DISCOVERY STAGE: CATEGORIES & CAROUSEL
    ============================================================ */
 .discoveryStageArea {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   min-width: 0;
 }
 
 .musicCategoriesSection {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
@@ -1229,7 +1120,7 @@ input {
 
 .categoriesHeadingPixel {
   font-family: var(--font-pixel);
-  font-size: 26px;
+  font-size: 25px;
   font-weight: 700;
   line-height: 1.05;
   color: var(--color-black);
@@ -1245,20 +1136,7 @@ input {
 }
 
 .carouselArrowBtn {
-  width: 28px;
-  height: 28px;
-  border: 1.5px solid var(--color-black);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-  transition: all 0.15s ease;
-}
-
-.carouselArrowBtn:hover {
-  background: var(--color-black);
-  color: var(--color-white);
+  display: none;
 }
 
 .viewAllLinkPixel {
@@ -1268,7 +1146,7 @@ input {
   color: var(--color-black);
   text-decoration: underline;
   text-underline-offset: 3px;
-  margin-left: 6px;
+  padding-bottom: 2px;
 }
 
 .viewAllLinkPixel:hover {
@@ -1282,13 +1160,18 @@ input {
   gap: 6px;
   overflow-x: auto;
   padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.filterPillsScroll::-webkit-scrollbar {
+  display: none;
 }
 
 .catPill {
   font-family: var(--font-pixel);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 3px 14px;
+  padding: 3px 13px;
   border-radius: 9999px;
   white-space: nowrap;
   transition: all 0.15s ease;
@@ -1313,27 +1196,19 @@ input {
 /* Cards Carousel */
 .cardsCarouselWrap {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding: 2px 2px 6px 2px;
+  padding: 0 0 2px 0;
+  scrollbar-width: none;
 }
 
 .cardsCarouselWrap::-webkit-scrollbar {
-  height: 4px;
-}
-
-.cardsCarouselWrap::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 4px;
-}
-
-.cardsCarouselWrap::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.04);
+  display: none;
 }
 
 .albumCardItem {
-  flex: 0 0 142px;
+  flex: 0 0 144px;
   scroll-snap-align: start;
   cursor: pointer;
   display: flex;
@@ -1354,10 +1229,10 @@ input {
 .cardImageWrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1.15;
-  border-radius: 18px;
+  aspect-ratio: 1 / 1.4;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.12);
   border: 1.5px solid var(--color-black);
   background: #bbb;
 }
@@ -1422,11 +1297,12 @@ input {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  text-align: center;
 }
 
 .cardTitlePixel {
   font-family: var(--font-pixel);
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--color-black);
   white-space: nowrap;
@@ -1435,7 +1311,7 @@ input {
 }
 
 .cardArtistText {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--color-text-muted);
   font-weight: 600;
   white-space: nowrap;
@@ -1449,12 +1325,12 @@ input {
 .favoritePlaylistsSection {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .favPlaylistsHeadingPixel {
   font-family: var(--font-pixel);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--color-black);
 }
@@ -1462,7 +1338,7 @@ input {
 .playlistsListWrap {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .playlistRowCard {
@@ -1470,7 +1346,7 @@ input {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 4px 8px;
+  padding: 5px 8px;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -1486,9 +1362,9 @@ input {
 }
 
 .playlistThumbWrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 9px;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
   border: 1.5px solid var(--color-black);
@@ -1511,20 +1387,20 @@ input {
 
 .playlistTitlePixel {
   font-family: var(--font-pixel);
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-black);
 }
 
 .playlistCountText {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--color-text-muted);
   font-weight: 600;
 }
 
 .playlistPlayCircleBtn {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 2px solid var(--color-black);
   background: transparent;
