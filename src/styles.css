@@ -1096,12 +1096,121 @@ input {
 }
 
 /* ============================================================
+   UP NEXT QUEUE (COVERS SQUARE BLANK SPACE UNDER TURNTABLE)
+   ============================================================ */
+.turntableQueueSection {
+  margin-top: 14px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.turntableQueueHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.turntableQueueTitle {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--color-black);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+.turntableQueueBadge {
+  font-family: var(--font-digital);
+  font-size: 10px;
+  font-weight: 700;
+  color: #555b66;
+}
+
+.turntableQueueList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.turntableQueueItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.turntableQueueItem:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.2);
+  transform: translateX(2px);
+}
+
+.queueItemThumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.queueItemMeta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 1px;
+}
+
+.queueItemTitle {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.queueItemArtist {
+  font-size: 10px;
+  color: #4a515e;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queueItemTime {
+  font-family: var(--font-digital);
+  font-size: 10.5px;
+  color: #4a515e;
+  font-weight: 700;
+}
+
+/* ============================================================
    RIGHT DISCOVERY STAGE: CATEGORIES & CAROUSEL
    ============================================================ */
 .discoveryStageArea {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
   min-width: 0;
 }
 

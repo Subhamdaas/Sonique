@@ -9,6 +9,7 @@ import {
   Minimize2,
   MessageSquare,
   Heart,
+  ListMusic,
 } from 'lucide-react';
 import { usePlayerStore } from '../store/playerStore';
 import { useLibraryStore } from '../store/libraryStore';
@@ -35,6 +36,13 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
 
   const current = player.current;
   const isPlaying = player.isPlaying;
+
+  const queue = player.queue && player.queue.length > 0 ? player.queue : [];
+  const currentIdx = queue.findIndex((t) => t.id === current?.id);
+  const upNextTracks =
+    currentIdx !== -1 && currentIdx < queue.length - 1
+      ? queue.slice(currentIdx + 1, currentIdx + 4)
+      : queue.filter((t) => t.id !== current?.id).slice(0, 3);
 
   // Waveform bars data (36 bars with natural variation)
   const barHeights = [
@@ -405,6 +413,46 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
           {player.shuffle && <span className="shuffleActiveDot" />}
         </button>
       </div>
+
+      {/* Up Next in Queue mini-panel to cover blank square space under turntable */}
+      {!isExpanded && upNextTracks.length > 0 && (
+        <div className="turntableQueueSection">
+          <div className="turntableQueueHeader">
+            <span className="turntableQueueTitle">
+              <ListMusic size={13} style={{ display: 'inline', verticalAlign: -1, marginRight: 5 }} />
+              Up Next Queue
+            </span>
+            <span className="turntableQueueBadge">
+              {queue.length} in queue
+            </span>
+          </div>
+          <div className="turntableQueueList">
+            {upNextTracks.map((trk) => {
+              const mins = Math.floor((trk.duration || 215) / 60);
+              const secs = ((trk.duration || 215) % 60).toString().padStart(2, '0');
+              return (
+                <div
+                  key={trk.id}
+                  className="turntableQueueItem"
+                  onClick={() => player.selectTrack(trk as any, true)}
+                  title={`Play: ${trk.title} by ${(trk as any).artist || 'Artist'}`}
+                >
+                  <img
+                    src={(trk as any).coverUrl || (trk as any).art || ''}
+                    alt={trk.title}
+                    className="queueItemThumb"
+                  />
+                  <div className="queueItemMeta">
+                    <span className="queueItemTitle">{trk.title}</span>
+                    <span className="queueItemArtist">{(trk as any).artist || (trk as any).showTitle || 'Artist'}</span>
+                  </div>
+                  <span className="queueItemTime">{mins}:{secs}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
