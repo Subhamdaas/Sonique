@@ -105,7 +105,6 @@ input {
   padding: 20px 28px 28px 28px;
   position: relative;
   border: 1.5px solid rgba(255, 255, 255, 0.7);
-  min-height: 640px;
   display: flex;
   flex-direction: column;
 }
@@ -1097,19 +1096,128 @@ input {
 }
 
 /* ============================================================
+   UP NEXT QUEUE (FILLS SPACE UNDER TURNTABLE CONTROLS)
+   ============================================================ */
+.turntableQueueSection {
+  margin-top: 14px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.turntableQueueHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.turntableQueueTitle {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--color-black);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+.turntableQueueBadge {
+  font-family: var(--font-digital);
+  font-size: 10px;
+  font-weight: 700;
+  color: #555b66;
+}
+
+.turntableQueueList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.turntableQueueItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.turntableQueueItem:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.2);
+  transform: translateX(2px);
+}
+
+.queueItemThumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.queueItemMeta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 1px;
+}
+
+.queueItemTitle {
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.queueItemArtist {
+  font-size: 10px;
+  color: #4a515e;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queueItemTime {
+  font-family: var(--font-digital);
+  font-size: 10.5px;
+  color: #4a515e;
+  font-weight: 700;
+}
+
+/* ============================================================
    RIGHT DISCOVERY STAGE: CATEGORIES & CAROUSEL
    ============================================================ */
 .discoveryStageArea {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 16px;
   min-width: 0;
 }
 
 .musicCategoriesSection {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -1121,7 +1229,7 @@ input {
 
 .categoriesHeadingPixel {
   font-family: var(--font-pixel);
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
   line-height: 1.05;
   color: var(--color-black);
@@ -1137,8 +1245,8 @@ input {
 }
 
 .carouselArrowBtn {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border: 1.5px solid var(--color-black);
   border-radius: 50%;
   display: flex;
@@ -1155,7 +1263,7 @@ input {
 
 .viewAllLinkPixel {
   font-family: var(--font-pixel);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--color-black);
   text-decoration: underline;
@@ -1171,16 +1279,16 @@ input {
 .filterPillsScroll {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
 }
 
 .catPill {
   font-family: var(--font-pixel);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 4px 16px;
+  padding: 3px 14px;
   border-radius: 9999px;
   white-space: nowrap;
   transition: all 0.15s ease;
@@ -1205,24 +1313,37 @@ input {
 /* Cards Carousel */
 .cardsCarouselWrap {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding: 4px 2px 12px 2px;
+  padding: 2px 2px 6px 2px;
+}
+
+.cardsCarouselWrap::-webkit-scrollbar {
+  height: 4px;
+}
+
+.cardsCarouselWrap::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+
+.cardsCarouselWrap::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .albumCardItem {
-  flex: 0 0 170px;
+  flex: 0 0 142px;
   scroll-snap-align: start;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   transition: transform 0.2s ease;
 }
 
 .albumCardItem:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
 }
 
 .albumCardItem.activePlaying .cardImageWrap {
@@ -1233,7 +1354,7 @@ input {
 .cardImageWrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1.35;
+  aspect-ratio: 1 / 1.15;
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
@@ -1328,12 +1449,12 @@ input {
 .favoritePlaylistsSection {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 
 .favPlaylistsHeadingPixel {
   font-family: var(--font-pixel);
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-black);
 }
@@ -1341,16 +1462,16 @@ input {
 .playlistsListWrap {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .playlistRowCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding: 6px 10px 6px 6px;
-  border-radius: 14px;
+  gap: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -1365,9 +1486,9 @@ input {
 }
 
 .playlistThumbWrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
   overflow: hidden;
   flex-shrink: 0;
   border: 1.5px solid var(--color-black);
@@ -1385,12 +1506,12 @@ input {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 2px;
+  gap: 1px;
 }
 
 .playlistTitlePixel {
   font-family: var(--font-pixel);
-  font-size: 16px;
+  font-size: 14.5px;
   font-weight: 700;
   color: var(--color-black);
 }
