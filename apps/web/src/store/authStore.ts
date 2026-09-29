@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { api } from '../services/api';
+import { api, saveTokens } from '../services/api';
 import { UserProfile } from '../types';
 
 type AuthState = {
@@ -10,24 +10,30 @@ type AuthState = {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   hydrate: () => Promise<void>;
 };
 
-const load = (key: string) => localStorage.getItem(key) || localStorage.getItem(key.replace('sonique_', 'aura_'));
-const save = (key: string, value: string | null) => {
-  if (value) {
-    localStorage.setItem(key, value);
-  } else {
-    localStorage.removeItem(key);
-    localStorage.removeItem(key.replace('sonique_', 'aura_'));
+const getStoredToken = () => {
+  try {
+    return localStorage.getItem('sonique_access_token');
+  } catch {
+    return null;
+  }
+};
+
+const getStoredRefreshToken = () => {
+  try {
+    return localStorage.getItem('sonique_refresh_token');
+  } catch {
+    return null;
   }
 };
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  accessToken: load('sonique_access_token'),
-  refreshToken: load('sonique_refresh_token'),
+  accessToken: getStoredToken(),
+  refreshToken: getStoredRefreshToken(),
   loading: false,
   error: null,
 
@@ -35,8 +41,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const data = await api.login({ email, password });
-      save('sonique_access_token', data.accessToken);
-      save('sonique_refresh_token', data.refreshToken);
+      saveTokens(data.accessToken, data.refreshToken);
       set({
         user: data.user,
         accessToken: data.accessToken,
@@ -56,8 +61,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const data = await api.register({ name, email, password });
-      save('sonique_access_token', data.accessToken);
-      save('sonique_refresh_token', data.refreshToken);
+      saveTokens(data.accessToken, data.refreshToken);
       set({
         user: data.user,
         accessToken: data.accessToken,
@@ -73,20 +77,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  logout() {
-    save('sonique_access_token', null);
-    save('sonique_refresh_token', null);
-    set({
-      user: null,
-      accessToken: null,
-      refreshToken: null,
-      error: null,
-    });
+  async logout() {
+    const { refreshToken } = get();
+    try {
+      await api.logout(refreshToken || undefined);
+    } catch {
+      // safe fallback
+    } finally {
+      saveTokens(null, null);
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        error: null,
+      });
+    }
   },
 
   async hydrate() {
     const { accessToken, refreshToken } = get();
     if (!accessToken && !refreshToken) return;
+
     try {
       if (accessToken) {
         const user = await api.me();
@@ -98,16 +109,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (refreshToken) {
       try {
         const data = await api.refresh(refreshToken);
-        save('sonique_access_token', data.accessToken);
-        save('sonique_refresh_token', data.refreshToken);
+        saveTokens(data.accessToken, data.refreshToken);
         set({
           user: data.user,
           accessToken: data.accessToken,
           refreshToken: data.refreshToken,
         });
-        return;
-      } catch {}
+      } catch {
+        saveTokens(null, null);
+        set({ user: null, accessToken: null, refreshToken: null });
+      }
     }
-    get().logout();
   },
 }));

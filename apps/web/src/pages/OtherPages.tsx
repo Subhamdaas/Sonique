@@ -36,7 +36,7 @@ export function ProfilePage() {
   useEffect(() => {
     if (user) {
       api.getHistory(5).then(setHistory).catch(() => {});
-      api.getCurrentSubscription(user.id).then(setSub).catch(() => {});
+      api.getCurrentSubscription().then(setSub).catch(() => {});
     }
   }, [user]);
 
@@ -387,7 +387,7 @@ export function PricingPage() {
 
   useEffect(() => {
     if (user) {
-      api.getCurrentSubscription(user.id).then(setSub).catch(() => {});
+      api.getCurrentSubscription().then(setSub).catch(() => {});
     }
   }, [user]);
 
@@ -399,9 +399,9 @@ export function PricingPage() {
     setUpgrading(true);
     setMsg(null);
     try {
-      const res = await api.upgradeToPremium(user.id, 'MONTHLY');
-      setMsg(res.message);
-      api.getCurrentSubscription(user.id).then(setSub);
+      const res = await api.upgradeSubscription('MONTHLY');
+      setMsg(res.message || 'Upgraded successfully');
+      api.getCurrentSubscription().then(setSub);
     } catch (err: any) {
       setMsg(`Upgrade error: ${err.message}`);
     } finally {
@@ -524,7 +524,7 @@ export function AdminPage() {
 
   useEffect(() => {
     api.getHealth().then(setHealth).catch(() => {});
-    api.getAnalyticsOverview().then(setAnalytics).catch(() => {});
+    api.getOverviewAnalytics().then(setAnalytics).catch(() => {});
   }, []);
 
   return (

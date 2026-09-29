@@ -9,20 +9,44 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RoomsService } from './rooms.service';
+import { JwtService } from '@nestjs/jwt';
+import { env } from '../config/env';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: (process.env.FRONTEND_URL || 'http://localhost:5173,http://127.0.0.1:5173')
+      .split(',')
+      .map((s) => s.trim()),
+    credentials: true,
   },
 })
 export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;
 
-  constructor(private readonly roomsService: RoomsService) {}
+  constructor(
+    private readonly roomsService: RoomsService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   handleConnection(client: Socket) {
-    // Client connected
+    // Authenticate socket user if token provided in auth or query or headers
+    try {
+      const rawToken =
+        client.handshake.auth?.token ||
+        client.handshake.headers?.authorization?.replace('Bearer ', '') ||
+        (client.handshake.query?.token as string);
+
+      if (rawToken) {
+        const payload = this.jwtService.verify(rawToken, {
+          secret: env.jwtSecret,
+        });
+        (client as any).authenticatedUser = payload;
+      }
+    } catch {
+      // Unauthenticated / guest connection
+      (client as any).authenticatedUser = null;
+    }
   }
 
   handleDisconnect(client: Socket) {
@@ -42,13 +66,20 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleJoinRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { code: string; userId?: string; name: string; avatarUrl?: string }
+    data: { code: string; userId?: string; name: string; avatarUrl?: string },
   ) {
     const roomCode = data.code?.toUpperCase();
+
+    // Prefer verified authenticated identity over client-supplied userId
+    const authUser = (client as any).authenticatedUser;
+    const verifiedUserId = authUser?.sub || data.userId;
+    const displayName =
+      authUser?.name || authUser?.username || data.name || 'Guest Listener';
+
     const result = this.roomsService.joinMember(roomCode, {
       socketId: client.id,
-      userId: data.userId,
-      name: data.name || 'Guest Listener',
+      userId: verifiedUserId,
+      name: displayName,
       avatarUrl: data.avatarUrl,
     });
 
@@ -60,7 +91,6 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const serialized = this.roomsService.serializeRoom(result.room);
 
-    // Broadcast member joined to room
     this.server.to(roomCode).emit('room_member_joined', {
       member: result.joinedMember,
       members: serialized.members,
@@ -73,18 +103,19 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleSyncPlayback(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: { code: string; track?: any; isPlaying?: boolean; seekTime?: number }
+    data: { code: string; track?: any; isPlaying?: boolean; seekTime?: number },
   ) {
     const roomCode = data.code?.toUpperCase();
-    const room = this.roomsService.syncPlayback(roomCode, {
+    const room = this.roomsService.syncPlayback(roomCode, client.id, {
       track: data.track,
       isPlaying: data.isPlaying,
       seekTime: data.seekTime,
     });
 
-    if (!room) return { status: 'error' };
+    if (!room) {
+      return { status: 'error', message: 'Unauthorized or room not found' };
+    }
 
-    // Broadcast playback synchronization to all room members
     client.to(roomCode).emit('room_playback_synced', {
       track: room.currentTrack,
       isPlaying: room.isPlaying,
@@ -98,7 +129,7 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('queue_add')
   handleQueueAdd(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { code: string; track: any }
+    @MessageBody() data: { code: string; track: any },
   ) {
     const roomCode = data.code?.toUpperCase();
     const room = this.roomsService.addToQueue(roomCode, data.track);
@@ -114,7 +145,7 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('queue_remove')
   handleQueueRemove(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { code: string; index: number }
+    @MessageBody() data: { code: string; index: number },
   ) {
     const roomCode = data.code?.toUpperCase();
     const room = this.roomsService.removeFromQueue(roomCode, data.index);
@@ -133,15 +164,16 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody()
     data: {
       code: string;
-      sender: string;
-      avatarUrl?: string;
       text: string;
-      isHost?: boolean;
-    }
+      avatarUrl?: string;
+    },
   ) {
     const roomCode = data.code?.toUpperCase();
-    const message = this.roomsService.addMessage(roomCode, data);
-    if (!message) return { status: 'error' };
+    const message = this.roomsService.addMessage(roomCode, client.id, {
+      text: data.text,
+      avatarUrl: data.avatarUrl,
+    });
+    if (!message) return { status: 'error', message: 'Not a member of room' };
 
     this.server.to(roomCode).emit('room_message_received', { message });
     return { status: 'ok', message };

@@ -27,4 +27,10 @@ export class AuthController {
   me(@Req() req: { user: { sub: string } }) {
     return this.auth.getMe(req.user.sub);
   }
+
+  @Post('logout')
+  async logout(@Body() body: { refreshToken?: string }, @Req() req: any) {
+    const userId = req.user?.sub;
+    return this.auth.logout(body?.refreshToken, userId);
+  }
 }

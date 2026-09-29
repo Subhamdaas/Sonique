@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { env } from '../config/env';
 
 export interface UploadFile {
   buffer: Buffer;
@@ -8,6 +9,19 @@ export interface UploadFile {
   size: number;
   mimetype: string;
 }
+
+const ALLOWED_MIME_TYPES: Record<string, string[]> = {
+  '.mp3': ['audio/mpeg', 'audio/mp3'],
+  '.wav': ['audio/wav', 'audio/wave', 'audio/x-wav'],
+  '.ogg': ['audio/ogg', 'application/ogg'],
+  '.m4a': ['audio/m4a', 'audio/x-m4a', 'audio/mp4'],
+  '.aac': ['audio/aac', 'audio/x-aac'],
+  '.flac': ['audio/flac', 'audio/x-flac'],
+  '.jpg': ['image/jpeg'],
+  '.jpeg': ['image/jpeg'],
+  '.png': ['image/png'],
+  '.webp': ['image/webp'],
+};
 
 @Injectable()
 export class StorageService {
@@ -25,10 +39,20 @@ export class StorageService {
     }
 
     const ext = path.extname(file.originalname).toLowerCase();
-    const allowed = ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.jpg', '.jpeg', '.png', '.webp'];
+    const validMimes = ALLOWED_MIME_TYPES[ext];
 
-    if (!allowed.includes(ext)) {
-      throw new BadRequestException(`File extension ${ext} not supported. Allowed: ${allowed.join(', ')}`);
+    if (!validMimes) {
+      throw new BadRequestException(
+        `File extension ${ext} not supported. Allowed: ${Object.keys(ALLOWED_MIME_TYPES).join(', ')}`,
+      );
+    }
+
+    // Validate MIME type matches extension
+    const mime = (file.mimetype || '').toLowerCase();
+    if (!validMimes.some((vm) => mime.includes(vm) || vm.includes(mime))) {
+      throw new BadRequestException(
+        `File MIME type "${file.mimetype}" does not match extension "${ext}". Expected: ${validMimes.join(', ')}`,
+      );
     }
 
     const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
@@ -36,8 +60,9 @@ export class StorageService {
 
     fs.writeFileSync(targetPath, file.buffer);
 
+    const baseUrl = env.apiUrl.replace(/\/+$/, '');
     return {
-      url: `http://localhost:4000/uploads/${uniqueName}`,
+      url: `${baseUrl}/uploads/${uniqueName}`,
       filename: uniqueName,
       size: file.size,
       mimetype: file.mimetype,

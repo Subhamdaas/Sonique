@@ -1,7 +1,4 @@
-/* ============================================================
-   SONIQUE RETRO VINYL CONSOLE DESIGN SYSTEM
-   High-contrast, pixel-perfect aesthetic matching reference
-   ============================================================ */
+/* SONIQUE RETRO VINYL CONSOLE DESIGN SYSTEM */
 
 :root {
   --bg-viewport: #0a0b0e;
@@ -9,7 +6,7 @@
   --bg-console-light: #e6e8ec;
   --bg-console-dark: #cfd2d7;
   --bg-turntable: #d5d8dd;
-  
+
   --color-black: #000000;
   --color-white: #ffffff;
   --color-text-main: #000000;
@@ -37,7 +34,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   min-height: 100%;
   background-color: var(--bg-viewport);
@@ -72,21 +70,22 @@ input {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.5);
 }
 
-/* ============================================================
-   WINDOW WRAPPER & CONSOLE BEZEL
-   ============================================================ */
+/* WINDOW WRAPPER & CONSOLE BEZEL*/
 .retroWindowWrapper {
   display: flex;
   justify-content: center;
@@ -110,9 +109,7 @@ input {
   flex-direction: column;
 }
 
-/* ============================================================
-   HEADER BAR (SONIQUE LOGO & UTILITIES)
-   ============================================================ */
+/* HEADER BAR (SONIQUE LOGO & UTILITIES) */
 .retroHeaderBar {
   display: flex;
   align-items: center;
@@ -363,9 +360,7 @@ input {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-/* ============================================================
-   CONSOLE BODY & VERTICAL SIDEBAR
-   ============================================================ */
+/* CONSOLE BODY & VERTICAL SIDEBAR */
 .retroConsoleBody {
   display: flex;
   gap: 24px;
@@ -425,9 +420,7 @@ input {
   margin: 0 auto;
 }
 
-/* ============================================================
-   REALISTIC VINYL TURNTABLE COMPONENT
-   ============================================================ */
+/* REALISTIC VINYL TURNTABLE COMPONENT */
 .turntableContainer {
   display: flex;
   flex-direction: column;
@@ -480,10 +473,29 @@ input {
   background: #333;
 }
 
-.cornerScrew.tl { top: 12px; left: 12px; transform: rotate(15deg); }
-.cornerScrew.tr { top: 12px; right: 12px; transform: rotate(70deg); }
-.cornerScrew.bl { bottom: 12px; left: 12px; transform: rotate(120deg); }
-.cornerScrew.br { bottom: 12px; right: 12px; transform: rotate(45deg); }
+.cornerScrew.tl {
+  top: 12px;
+  left: 12px;
+  transform: rotate(15deg);
+}
+
+.cornerScrew.tr {
+  top: 12px;
+  right: 12px;
+  transform: rotate(70deg);
+}
+
+.cornerScrew.bl {
+  bottom: 12px;
+  left: 12px;
+  transform: rotate(120deg);
+}
+
+.cornerScrew.br {
+  bottom: 12px;
+  right: 12px;
+  transform: rotate(45deg);
+}
 
 /* Chassis Controls */
 .chassisControls {
@@ -503,7 +515,7 @@ input {
   border-radius: 50%;
   background: radial-gradient(circle, #f0f2f5 35%, #9fa4af 100%);
   border: 1px solid #777;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   position: relative;
   cursor: pointer;
   transition: transform 0.2s ease, filter 0.2s ease;
@@ -591,7 +603,7 @@ input {
   border-radius: 3px;
   position: relative;
   cursor: pointer;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .pitchThumb {
@@ -602,7 +614,7 @@ input {
   background: linear-gradient(180deg, #f0f2f5 0%, #b8bcc4 100%);
   border: 1px solid #111;
   border-radius: 2px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   transition: top 0.15s ease;
   pointer-events: none;
 }
@@ -620,7 +632,7 @@ input {
   height: 14px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #f4f6f8 0%, #b8bcc4 60%, #7d828d 100%);
-  box-shadow: 0 1.5px 3px rgba(0,0,0,0.35), inset 0 1px 1px #fff;
+  box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.35), inset 0 1px 1px #fff;
   border: 0.5px solid #666;
   position: relative;
   margin-top: 8px;
@@ -690,8 +702,13 @@ input {
 }
 
 @keyframes spinVinyl {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .vinylGroove {
@@ -702,26 +719,38 @@ input {
   pointer-events: none;
 }
 
-.groove1 { inset: 12px; }
-.groove2 { inset: 26px; }
-.groove3 { inset: 40px; }
-.groove4 { inset: 54px; }
-.groove5 { inset: 68px; }
+.groove1 {
+  inset: 12px;
+}
+
+.groove2 {
+  inset: 26px;
+}
+
+.groove3 {
+  inset: 40px;
+}
+
+.groove4 {
+  inset: 54px;
+}
+
+.groove5 {
+  inset: 68px;
+}
 
 .vinylSheen {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: conic-gradient(
-    from 40deg at 50% 50%,
-    transparent 0deg,
-    rgba(255, 255, 255, 0.12) 35deg,
-    transparent 70deg,
-    transparent 180deg,
-    rgba(255, 255, 255, 0.12) 215deg,
-    transparent 250deg,
-    transparent 360deg
-  );
+  background: conic-gradient(from 40deg at 50% 50%,
+      transparent 0deg,
+      rgba(255, 255, 255, 0.12) 35deg,
+      transparent 70deg,
+      transparent 180deg,
+      rgba(255, 255, 255, 0.12) 215deg,
+      transparent 250deg,
+      transparent 360deg);
   pointer-events: none;
 }
 
@@ -834,7 +863,7 @@ input {
   border-radius: 3px;
   background: linear-gradient(to right, #7a7f8a, #d2d6de, #6c717c);
   border: 1px solid #444;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .tonearmArm {
@@ -1004,9 +1033,7 @@ input {
   background-color: #6d727d;
 }
 
-/* ============================================================
-   TRANSPORT CONTROLS BAR (BOTTOM LEFT)
-   ============================================================ */
+/* TRANSPORT CONTROLS BAR (BOTTOM LEFT) */
 .transportControls {
   display: flex;
   align-items: center;
@@ -1635,7 +1662,8 @@ input {
   color: #000;
 }
 
-.tdCol.artist, .tdCol.album {
+.tdCol.artist,
+.tdCol.album {
   font-size: 13px;
   color: #222;
 }
@@ -1966,7 +1994,7 @@ input {
   align-items: center;
   justify-content: center;
   border: 3px solid #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .profileNamePixel {
@@ -2021,22 +2049,23 @@ input {
   margin-top: 6px;
 }
 
-/* ============================================================
-   RESPONSIVE ADAPTATIONS (MOBILE, TABLET, LAPTOP, FULLSCREEN WEB)
-   ============================================================ */
-/* Laptops & Tablets Landscape (860px - 1080px) */
+/*  RESPONSIVE ADAPTATIONS (MOBILE, TABLET, LAPTOP, FULLSCREEN WEB) */
+
 @media (max-width: 1080px) {
   .retroConsoleBezel {
     padding: 18px 22px;
     max-width: 100%;
   }
+
   .retroGridStage {
     grid-template-columns: 370px 1fr;
     gap: 22px;
   }
+
   .turntableChassis {
     max-width: 370px;
   }
+
   .albumCardItem {
     flex: 0 0 135px;
   }
@@ -2047,14 +2076,17 @@ input {
   .retroConsoleBody {
     gap: 16px;
   }
+
   .retroGridStage {
     grid-template-columns: 1fr;
     gap: 24px;
   }
+
   .turntableContainer {
     max-width: 440px;
     margin: 0 auto;
   }
+
   .discoveryStageArea {
     max-width: 600px;
     margin: 0 auto;
@@ -2068,24 +2100,29 @@ input {
     padding: 8px;
     min-height: 100vh;
   }
+
   .retroConsoleBezel {
     border-radius: 18px;
     padding: 14px 12px;
   }
+
   .retroHeaderBar {
     flex-wrap: wrap;
     gap: 12px;
     padding-bottom: 12px;
   }
+
   .searchPillContainer {
     order: 3;
     max-width: 100%;
     width: 100%;
   }
+
   .retroConsoleBody {
     flex-direction: column;
     gap: 12px;
   }
+
   .retroSidebarNav {
     flex-direction: row;
     width: 100%;
@@ -2094,27 +2131,31 @@ input {
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     padding-bottom: 8px;
   }
+
   .retroGridStage {
     grid-template-columns: 1fr;
     gap: 20px;
   }
+
   .turntableContainer {
     max-width: 100%;
     margin: 0;
   }
+
   .turntableChassis {
     max-width: 100%;
     padding: 12px;
   }
+
   .trackTitlePixel {
     font-size: 20px;
   }
+
   .categoriesHeadingPixel {
     font-size: 21px;
   }
+
   .albumCardItem {
     flex: 0 0 128px;
   }
 }
-
-

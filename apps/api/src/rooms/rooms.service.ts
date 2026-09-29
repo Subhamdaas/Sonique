@@ -39,10 +39,10 @@ export class RoomsService {
   private rooms: Map<string, Room> = new Map();
 
   constructor() {
-    // Initialize a default public showcase room
+    // Initialize default public showcase room
     this.createRoom({
-      name: 'Luminous Chill Lounge',
-      genre: 'Chill / Electronic',
+      name: 'Sonique Vinyl Lounge',
+      genre: 'Classic / Retro Beats',
       isPublic: true,
       hostId: 'sonique-bot',
       hostName: 'Sonique Host',
@@ -72,21 +72,21 @@ export class RoomsService {
 
     const room: Room = {
       code,
-      name: data.name || 'Vibe Session',
+      name: data.name || 'Vinyl Session',
       genre: data.genre || 'All Genres',
       isPublic: data.isPublic !== false,
       hostId: data.hostId,
       hostName: data.hostName,
       currentTrack: {
-        id: 's1',
-        title: 'Starboy',
-        artist: 'The Weeknd',
-        duration: 230,
-        audioUrl: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
-        coverUrl:
-          'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=900&q=80',
+        id: 's-tum-hi-ho',
+        title: 'Tum Hi Ho',
+        artist: 'Arijit Singh & Mithoon',
+        album: 'Aashiqui 2',
+        duration: 262,
+        audioUrl: 'https://aac.saavncdn.com/430/5c5ea5cc00e3bff45616013226f376fe_320.mp4',
+        coverUrl: 'https://c.saavncdn.com/430/Aashiqui-2-Hindi-2013-500x500.jpg',
       },
-      isPlaying: true,
+      isPlaying: false,
       seekTime: 0,
       lastSyncTimestamp: Date.now(),
       members: new Map(),
@@ -95,7 +95,7 @@ export class RoomsService {
         {
           id: 'welcome',
           sender: 'Sonique Bot',
-          text: 'Welcome to the room! Listen in sync, chat, and add songs to the queue.',
+          text: 'Welcome to the room! Listen in sync, chat, and queue real tracks.',
           timestamp: Date.now(),
           isHost: true,
         },
@@ -108,6 +108,7 @@ export class RoomsService {
   }
 
   getRoom(code: string): Room | undefined {
+    if (!code) return undefined;
     return this.rooms.get(code.toUpperCase());
   }
 
@@ -132,12 +133,16 @@ export class RoomsService {
 
   joinMember(
     code: string,
-    member: { socketId: string; userId?: string; name: string; avatarUrl?: string }
+    member: { socketId: string; userId?: string; name: string; avatarUrl?: string },
   ): { room: Room; joinedMember: RoomMember } | null {
     const room = this.getRoom(code);
     if (!room) return null;
 
-    const isHost = room.members.size === 0 || room.hostId === member.userId;
+    // Server decides host status
+    const isHost =
+      room.members.size === 0 ||
+      (!!member.userId && room.hostId === member.userId);
+
     const roomMember: RoomMember = {
       ...member,
       isHost,
@@ -176,10 +181,17 @@ export class RoomsService {
 
   syncPlayback(
     code: string,
-    data: { track?: any; isPlaying?: boolean; seekTime?: number }
+    socketId: string,
+    data: { track?: any; isPlaying?: boolean; seekTime?: number },
   ): Room | null {
     const room = this.getRoom(code);
     if (!room) return null;
+
+    const member = room.members.get(socketId);
+    // Security check: Only host can sync playback for the room
+    if (!member || !member.isHost) {
+      return null;
+    }
 
     if (data.track !== undefined) room.currentTrack = data.track;
     if (data.isPlaying !== undefined) room.isPlaying = data.isPlaying;
@@ -207,18 +219,23 @@ export class RoomsService {
 
   addMessage(
     code: string,
-    msg: { sender: string; avatarUrl?: string; text: string; isHost?: boolean }
+    socketId: string,
+    msg: { text: string; avatarUrl?: string },
   ): ChatMessage | null {
     const room = this.getRoom(code);
     if (!room) return null;
 
+    const member = room.members.get(socketId);
+    if (!member) return null;
+
+    // Server-enforced identity and host status
     const chatMsg: ChatMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      sender: msg.sender,
-      avatarUrl: msg.avatarUrl,
+      sender: member.name,
+      avatarUrl: msg.avatarUrl || member.avatarUrl,
       text: msg.text,
       timestamp: Date.now(),
-      isHost: msg.isHost,
+      isHost: member.isHost,
     };
 
     room.messages.push(chatMsg);
@@ -229,7 +246,6 @@ export class RoomsService {
   }
 
   serializeRoom(room: Room) {
-    // Current computed seek position considering elapsed playback time
     let computedSeek = room.seekTime;
     if (room.isPlaying && room.lastSyncTimestamp) {
       const elapsed = (Date.now() - room.lastSyncTimestamp) / 1000;

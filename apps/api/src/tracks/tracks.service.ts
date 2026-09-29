@@ -75,13 +75,19 @@ export class TracksService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string, userRole?: string) {
     const track = await this.prisma.track.findUnique({
       where: { id },
     });
 
     if (!track) {
       throw new NotFoundException('Track not found');
+    }
+
+    if (track.uploadedById !== userId && userRole !== 'ADMIN') {
+      throw new ForbiddenException(
+        'You do not have permission to delete this track',
+      );
     }
 
     await this.prisma.track.delete({

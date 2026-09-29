@@ -4,11 +4,14 @@ import {
   Heart,
   Play,
   Pause,
-  MoreHorizontal,
   Clock,
-  Share2,
+  ArrowLeft,
+  Disc3,
+  Mic2,
+  Library,
+  Radio,
 } from 'lucide-react';
-import { SongRow, PodcastEpisodeRow, MediaCard } from '../components/media';
+import { SongRow } from '../components/media';
 import { usePlayerStore } from '../store/playerStore';
 import { useLibraryStore } from '../store/libraryStore';
 import { api } from '../services/api';
@@ -16,14 +19,17 @@ import { Album, Artist, Playlist, PodcastEpisode, PodcastShow, Track } from '../
 
 export function PlaylistPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const player = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+    setError(null);
     api
       .getPlaylist(id)
       .then((data: any) => {
@@ -32,87 +38,115 @@ export function PlaylistPage() {
         setTracks(extractedTracks);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        setError(err.message || 'Playlist not found');
         setLoading(false);
       });
   }, [id]);
 
-  if (loading) return <div style={{ padding: 40, color: 'var(--text-subdued)' }}>Loading playlist...</div>;
+  if (loading) {
+    return <div className="retroLoadingMsg">Loading playlist...</div>;
+  }
 
-  const currentPl = playlist || {
-    id: id || 'pl1',
-    title: 'Featured Selection',
-    description: 'A curated selection of late-night soundscapes.',
-    coverUrl: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=900&q=80',
-    owner: 'Sonique',
-  };
+  if (error || !playlist) {
+    return (
+      <div className="retroEmptyStateContainer">
+        <h2>Playlist Not Found</h2>
+        <p>{error || 'The requested playlist does not exist in the catalog.'}</p>
+        <button className="retroBlackBtn" onClick={() => navigate('/library')}>
+          Return to Library
+        </button>
+      </div>
+    );
+  }
 
-  const isPlayingThisList = tracks.some((t) => t.id === player.current?.id) && player.isPlaying;
+  const isPlayingThisList =
+    tracks.some((t) => t.id === player.current?.id) && player.isPlaying;
 
   const handlePlayToggle = () => {
     if (isPlayingThisList) {
       player.pause();
     } else if (tracks.length > 0) {
-      player.setCurrent(tracks[0], tracks);
+      player.playPlaylist(playlist.id, tracks[0], tracks);
     }
   };
 
-  const ownerName = typeof currentPl.owner === 'object' ? currentPl.owner?.name : currentPl.owner || 'Sonique';
+  const ownerName =
+    typeof playlist.owner === 'object'
+      ? playlist.owner?.name
+      : playlist.owner || 'Sonique Curator';
 
   return (
-    <div>
-      {/* Spotify Grand Header */}
-      <div className="detailHeader">
-        <img
-          src={currentPl.coverUrl || 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=900&q=80'}
-          alt={currentPl.title}
-          className="detailArt"
-        />
-        <div className="detailInfo">
-          <div className="detailType">Public Playlist</div>
-          <h1 className="detailTitle">{currentPl.title}</h1>
-          <p style={{ margin: 0, color: 'var(--text-subdued)', fontSize: 14 }}>{currentPl.description || 'Curated music stream.'}</p>
-          <div className="detailMeta">
+    <div className="retroDetailPage">
+      <button className="retroBackBtn" onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} />
+        <span>Back</span>
+      </button>
+
+      {/* Retro Detail Header */}
+      <div className="retroDetailHeader">
+        <div className="retroDetailArtBox">
+          {playlist.coverUrl ? (
+            <img src={playlist.coverUrl} alt={playlist.title} className="retroDetailArtImg" />
+          ) : (
+            <div className="retroDetailArtPlaceholder">
+              <Library size={48} />
+            </div>
+          )}
+        </div>
+        <div className="retroDetailInfo">
+          <span className="retroDetailBadge">PLAYLIST</span>
+          <h1 className="retroDetailTitle">{playlist.title}</h1>
+          {playlist.description && (
+            <p className="retroDetailDesc">{playlist.description}</p>
+          )}
+          <div className="retroDetailMeta">
             <strong>{ownerName}</strong>
             <span>•</span>
-            <span>{tracks.length} songs</span>
+            <span>{tracks.length} {tracks.length === 1 ? 'song' : 'songs'}</span>
           </div>
         </div>
       </div>
 
       {/* Action Row */}
-      <div className="detailActionRow">
-        <button className="bigPlayBtn" onClick={handlePlayToggle} aria-label="Play playlist">
-          {isPlayingThisList ? <Pause size={24} fill="#000" /> : <Play size={24} fill="#000" style={{ marginLeft: 3 }} />}
-        </button>
-        <button style={{ background: 'transparent', color: 'var(--text-subdued)', padding: 0 }} aria-label="Like playlist">
-          <Heart size={32} />
-        </button>
-        <button style={{ background: 'transparent', color: 'var(--text-subdued)', padding: 0 }} aria-label="More options">
-          <MoreHorizontal size={32} />
+      <div className="retroActionRow">
+        <button
+          className="retroBigPlayBtn"
+          onClick={handlePlayToggle}
+          disabled={tracks.length === 0}
+          aria-label={isPlayingThisList ? 'Pause playlist' : 'Play playlist'}
+        >
+          {isPlayingThisList ? <Pause size={20} fill="#000" /> : <Play size={20} fill="#000" style={{ marginLeft: 2 }} />}
+          <span>{isPlayingThisList ? 'PAUSE' : 'PLAY'}</span>
         </button>
       </div>
 
-      {/* Spotify Table */}
-      <div className="pageContent">
-        <div className="spotifyTable">
-          <div className="spotifyTableHeader">
-            <div>#</div>
-            <div>Title</div>
-            <div>Album</div>
-            <div style={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end', paddingRight: 4 }}>
-              <Clock size={16} />
+      {/* Tracks Table */}
+      <div className="retroTrackTableContainer">
+        {tracks.length > 0 ? (
+          <div className="retroTable">
+            <div className="retroTableHeader">
+              <div className="colNum">#</div>
+              <div className="colTitle">TITLE</div>
+              <div className="colAlbum">ALBUM</div>
+              <div className="colDuration">
+                <Clock size={14} />
+              </div>
             </div>
+            {tracks.map((s, idx) => (
+              <SongRow
+                key={s.id || idx}
+                song={s}
+                index={idx}
+                onPlay={() => player.setCurrent(s, tracks)}
+              />
+            ))}
           </div>
-          {tracks.map((s, i) => (
-            <SongRow
-              song={s}
-              index={i}
-              key={s.id}
-              onPlay={() => player.setCurrent(s, tracks)}
-            />
-          ))}
-        </div>
+        ) : (
+          <div className="retroEmptyStateContainer">
+            <p>This playlist has no tracks yet.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -120,14 +154,17 @@ export function PlaylistPage() {
 
 export function AlbumPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [album, setAlbum] = useState<Album | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const player = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+    setError(null);
     api
       .getAlbum(id)
       .then((data) => {
@@ -135,22 +172,30 @@ export function AlbumPage() {
         setTracks(data.tracks || []);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        setError(err.message || 'Album not found');
         setLoading(false);
       });
   }, [id]);
 
-  if (loading) return <div style={{ padding: 40, color: 'var(--text-subdued)' }}>Loading album...</div>;
+  if (loading) {
+    return <div className="retroLoadingMsg">Loading album...</div>;
+  }
 
-  const currentAl = album || {
-    id: id || 'al1',
-    title: 'Neon Odyssey',
-    artist: { name: 'Nova Vale' },
-    releaseYear: 2026,
-    coverUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=900&q=80',
-  };
+  if (error || !album) {
+    return (
+      <div className="retroEmptyStateContainer">
+        <h2>Album Not Found</h2>
+        <p>{error || 'The requested album does not exist in the catalog.'}</p>
+        <button className="retroBlackBtn" onClick={() => navigate('/search')}>
+          Explore Music
+        </button>
+      </div>
+    );
+  }
 
-  const isPlayingThisAlbum = tracks.some((t) => t.id === player.current?.id) && player.isPlaying;
+  const isPlayingThisAlbum =
+    tracks.some((t) => t.id === player.current?.id) && player.isPlaying;
 
   const handlePlayToggle = () => {
     if (isPlayingThisAlbum) {
@@ -161,57 +206,76 @@ export function AlbumPage() {
   };
 
   return (
-    <div>
-      <div className="detailHeader albumTheme">
-        <img
-          src={currentAl.coverUrl || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=900&q=80'}
-          alt={currentAl.title}
-          className="detailArt"
-        />
-        <div className="detailInfo">
-          <div className="detailType">Album</div>
-          <h1 className="detailTitle">{currentAl.title}</h1>
-          <div className="detailMeta">
-            <strong>{currentAl.artist?.name || 'Artist'}</strong>
-            <span>•</span>
-            <span>{currentAl.releaseYear || 2026}</span>
-            <span>•</span>
-            <span>{tracks.length} songs</span>
-          </div>
-        </div>
-      </div>
+    <div className="retroDetailPage">
+      <button className="retroBackBtn" onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} />
+        <span>Back</span>
+      </button>
 
-      <div className="detailActionRow">
-        <button className="bigPlayBtn" onClick={handlePlayToggle} aria-label="Play album">
-          {isPlayingThisAlbum ? <Pause size={24} fill="#000" /> : <Play size={24} fill="#000" style={{ marginLeft: 3 }} />}
-        </button>
-        <button style={{ background: 'transparent', color: 'var(--text-subdued)', padding: 0 }} aria-label="Like album">
-          <Heart size={32} />
-        </button>
-        <button style={{ background: 'transparent', color: 'var(--text-subdued)', padding: 0 }} aria-label="More options">
-          <MoreHorizontal size={32} />
-        </button>
-      </div>
-
-      <div className="pageContent">
-        <div className="spotifyTable">
-          <div className="spotifyTableHeader">
-            <div>#</div>
-            <div>Title</div>
-            <div>Album</div>
-            <div style={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end', paddingRight: 4 }}>
-              <Clock size={16} />
+      <div className="retroDetailHeader">
+        <div className="retroDetailArtBox">
+          {album.coverUrl ? (
+            <img src={album.coverUrl} alt={album.title} className="retroDetailArtImg" />
+          ) : (
+            <div className="retroDetailArtPlaceholder">
+              <Disc3 size={48} />
             </div>
-          </div>
-          {tracks.map((s, i) => (
-            <SongRow
-              song={s}
-              index={i}
-              key={s.id}
-              onPlay={() => player.setCurrent(s, tracks)}
-            />
-          ))}
+          )}
         </div>
+        <div className="retroDetailInfo">
+          <span className="retroDetailBadge">ALBUM</span>
+          <h1 className="retroDetailTitle">{album.title}</h1>
+          <div className="retroDetailMeta">
+            <strong>{album.artist?.name || 'Artist'}</strong>
+            {album.releaseYear && (
+              <>
+                <span>•</span>
+                <span>{album.releaseYear}</span>
+              </>
+            )}
+            <span>•</span>
+            <span>{tracks.length} {tracks.length === 1 ? 'song' : 'songs'}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="retroActionRow">
+        <button
+          className="retroBigPlayBtn"
+          onClick={handlePlayToggle}
+          disabled={tracks.length === 0}
+          aria-label={isPlayingThisAlbum ? 'Pause album' : 'Play album'}
+        >
+          {isPlayingThisAlbum ? <Pause size={20} fill="#000" /> : <Play size={20} fill="#000" style={{ marginLeft: 2 }} />}
+          <span>{isPlayingThisAlbum ? 'PAUSE' : 'PLAY'}</span>
+        </button>
+      </div>
+
+      <div className="retroTrackTableContainer">
+        {tracks.length > 0 ? (
+          <div className="retroTable">
+            <div className="retroTableHeader">
+              <div className="colNum">#</div>
+              <div className="colTitle">TITLE</div>
+              <div className="colAlbum">ALBUM</div>
+              <div className="colDuration">
+                <Clock size={14} />
+              </div>
+            </div>
+            {tracks.map((s, idx) => (
+              <SongRow
+                key={s.id || idx}
+                song={s}
+                index={idx}
+                onPlay={() => player.setCurrent(s, tracks)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="retroEmptyStateContainer">
+            <p>No tracks in this album.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -219,14 +283,17 @@ export function AlbumPage() {
 
 export function ArtistPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const player = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+    setError(null);
     api
       .getArtist(id)
       .then((data) => {
@@ -234,22 +301,30 @@ export function ArtistPage() {
         setTracks(data.tracks || []);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        setError(err.message || 'Artist not found');
         setLoading(false);
       });
   }, [id]);
 
-  if (loading) return <div style={{ padding: 40, color: 'var(--text-subdued)' }}>Loading artist...</div>;
+  if (loading) {
+    return <div className="retroLoadingMsg">Loading artist...</div>;
+  }
 
-  const currentArt = artist || {
-    id: id || 'art1',
-    name: 'Nova Vale',
-    bio: 'Electronic synth architect building luminous soundscapes.',
-    imageUrl: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=800&q=80',
-    verified: true,
-  };
+  if (error || !artist) {
+    return (
+      <div className="retroEmptyStateContainer">
+        <h2>Artist Not Found</h2>
+        <p>{error || 'The requested artist does not exist in the catalog.'}</p>
+        <button className="retroBlackBtn" onClick={() => navigate('/search')}>
+          Explore Artists
+        </button>
+      </div>
+    );
+  }
 
-  const isPlayingThisArtist = tracks.some((t) => t.id === player.current?.id) && player.isPlaying;
+  const isPlayingThisArtist =
+    tracks.some((t) => t.id === player.current?.id) && player.isPlaying;
 
   const handlePlayToggle = () => {
     if (isPlayingThisArtist) {
@@ -260,55 +335,70 @@ export function ArtistPage() {
   };
 
   return (
-    <div>
-      <div className="detailHeader artistTheme">
-        <img
-          src={currentArt.imageUrl || 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=800&q=80'}
-          alt={currentArt.name}
-          className="detailArt"
-          style={{ borderRadius: '50%' }}
-        />
-        <div className="detailInfo">
-          <div className="detailType">Verified Artist</div>
-          <h1 className="detailTitle">{currentArt.name}</h1>
-          <p style={{ margin: 0, color: 'var(--text-subdued)', fontSize: 14 }}>{currentArt.bio}</p>
-          <div className="detailMeta">
-            <span>{tracks.length} tracks in catalog</span>
+    <div className="retroDetailPage">
+      <button className="retroBackBtn" onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} />
+        <span>Back</span>
+      </button>
+
+      <div className="retroDetailHeader">
+        <div className="retroDetailArtBox round">
+          {artist.imageUrl ? (
+            <img src={artist.imageUrl} alt={artist.name} className="retroDetailArtImg round" />
+          ) : (
+            <div className="retroDetailArtPlaceholder round">
+              <Mic2 size={48} />
+            </div>
+          )}
+        </div>
+        <div className="retroDetailInfo">
+          <span className="retroDetailBadge">VERIFIED ARTIST</span>
+          <h1 className="retroDetailTitle">{artist.name}</h1>
+          {artist.bio && <p className="retroDetailDesc">{artist.bio}</p>}
+          <div className="retroDetailMeta">
+            <span>{tracks.length} tracks cataloged</span>
           </div>
         </div>
       </div>
 
-      <div className="detailActionRow">
-        <button className="bigPlayBtn" onClick={handlePlayToggle} aria-label="Play artist top tracks">
-          {isPlayingThisArtist ? <Pause size={24} fill="#000" /> : <Play size={24} fill="#000" style={{ marginLeft: 3 }} />}
-        </button>
+      <div className="retroActionRow">
         <button
-          style={{
-            background: 'transparent',
-            border: '1px solid rgba(255,255,255,0.2)',
-            color: '#fff',
-            borderRadius: 32,
-            padding: '8px 16px',
-            fontSize: 13,
-            fontWeight: 700,
-          }}
+          className="retroBigPlayBtn"
+          onClick={handlePlayToggle}
+          disabled={tracks.length === 0}
+          aria-label={isPlayingThisArtist ? 'Pause artist' : 'Play artist tracks'}
         >
-          Follow
+          {isPlayingThisArtist ? <Pause size={20} fill="#000" /> : <Play size={20} fill="#000" style={{ marginLeft: 2 }} />}
+          <span>{isPlayingThisArtist ? 'PAUSE' : 'PLAY'}</span>
         </button>
       </div>
 
-      <div className="pageContent">
-        <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 16 }}>Popular</h2>
-        <div className="spotifyTable">
-          {tracks.slice(0, 10).map((s, i) => (
-            <SongRow
-              song={s}
-              index={i}
-              key={s.id}
-              onPlay={() => player.setCurrent(s, tracks)}
-            />
-          ))}
-        </div>
+      <div className="retroTrackTableContainer">
+        <h2 className="retroSectionSubheading">Popular Tracks</h2>
+        {tracks.length > 0 ? (
+          <div className="retroTable">
+            <div className="retroTableHeader">
+              <div className="colNum">#</div>
+              <div className="colTitle">TITLE</div>
+              <div className="colAlbum">ALBUM</div>
+              <div className="colDuration">
+                <Clock size={14} />
+              </div>
+            </div>
+            {tracks.map((s, idx) => (
+              <SongRow
+                key={s.id || idx}
+                song={s}
+                index={idx}
+                onPlay={() => player.setCurrent(s, tracks)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="retroEmptyStateContainer">
+            <p>No tracks available for this artist.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -316,97 +406,109 @@ export function ArtistPage() {
 
 export function PodcastPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [show, setShow] = useState<PodcastShow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const player = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+    setError(null);
     api
       .getPodcastShow(id)
       .then((data) => {
         setShow(data);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        setError(err.message || 'Podcast show not found');
         setLoading(false);
       });
   }, [id]);
 
-  if (loading) return <div style={{ padding: 40, color: 'var(--text-subdued)' }}>Loading podcast...</div>;
+  if (loading) {
+    return <div className="retroLoadingMsg">Loading podcast...</div>;
+  }
 
-  const currentShow = show || {
-    id: id || 'pod1',
-    title: 'Sonic Architecture',
-    author: 'Nova Vale',
-    description: 'Deep discussions on audio production and modern synthesizers.',
-    coverUrl: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=900&q=80',
-    episodes: [],
-  };
+  if (error || !show) {
+    return (
+      <div className="retroEmptyStateContainer">
+        <h2>Podcast Not Found</h2>
+        <p>{error || 'The requested podcast show does not exist.'}</p>
+        <button className="retroBlackBtn" onClick={() => navigate('/browse')}>
+          Browse Shows
+        </button>
+      </div>
+    );
+  }
 
-  const episodes = currentShow.episodes || [];
+  const episodes = show.episodes || [];
 
   return (
-    <div>
-      <div className="detailHeader" style={{ background: 'linear-gradient(180deg, #1b3a4b 0%, #121212 100%)' }}>
-        <img
-          src={currentShow.coverUrl || 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=900&q=80'}
-          alt={currentShow.title}
-          className="detailArt"
-        />
-        <div className="detailInfo">
-          <div className="detailType">Podcast</div>
-          <h1 className="detailTitle">{currentShow.title}</h1>
-          <p style={{ margin: 0, color: 'var(--text-subdued)', fontSize: 14 }}>{currentShow.description}</p>
-          <div className="detailMeta">
-            <strong>{currentShow.author}</strong>
+    <div className="retroDetailPage">
+      <button className="retroBackBtn" onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} />
+        <span>Back</span>
+      </button>
+
+      <div className="retroDetailHeader">
+        <div className="retroDetailArtBox">
+          {show.coverUrl ? (
+            <img src={show.coverUrl} alt={show.title} className="retroDetailArtImg" />
+          ) : (
+            <div className="retroDetailArtPlaceholder">
+              <Radio size={48} />
+            </div>
+          )}
+        </div>
+        <div className="retroDetailInfo">
+          <span className="retroDetailBadge">PODCAST SHOW</span>
+          <h1 className="retroDetailTitle">{show.title}</h1>
+          {show.description && <p className="retroDetailDesc">{show.description}</p>}
+          <div className="retroDetailMeta">
+            <strong>{show.author}</strong>
             <span>•</span>
             <span>{episodes.length} episodes</span>
           </div>
         </div>
       </div>
 
-      <div className="pageContent" style={{ marginTop: 24 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 16 }}>All Episodes</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {episodes.map((ep) => (
-            <div
-              key={ep.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
-                padding: 16,
-                background: 'rgba(255,255,255,0.05)',
-                borderRadius: 8,
-                cursor: 'pointer',
-              }}
-              onClick={() => player.setCurrent(ep as any)}
-            >
-              <button
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: '50%',
-                  background: 'var(--text-bright)',
-                  color: '#000',
-                  display: 'grid',
-                  placeItems: 'center',
+      <div className="retroTrackTableContainer">
+        <h2 className="retroSectionSubheading">All Episodes</h2>
+        {episodes.length > 0 ? (
+          <div className="retroEpisodesList">
+            {episodes.map((ep) => (
+              <div
+                key={ep.id}
+                className="retroEpisodeRow"
+                onClick={() => player.setCurrent(ep as any)}
+                role="button"
+                tabIndex={0}
+                aria-label={`Play episode: ${ep.title}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') player.setCurrent(ep as any);
                 }}
               >
-                <Play size={18} fill="#000" style={{ marginLeft: 2 }} />
-              </button>
-              <div>
-                <strong style={{ display: 'block', fontSize: 16, color: 'var(--text-bright)' }}>{ep.title}</strong>
-                <p style={{ margin: '4px 0 0 0', fontSize: 13, color: 'var(--text-subdued)' }}>{ep.description}</p>
-                <span style={{ fontSize: 12, color: 'var(--text-subdued)', marginTop: 6, display: 'block' }}>
-                  {Math.floor((ep.duration || 1800) / 60)} mins
-                </span>
+                <button className="episodePlayBtn" aria-label="Play Episode">
+                  <Play size={16} fill="#000" style={{ marginLeft: 2 }} />
+                </button>
+                <div className="episodeMeta">
+                  <span className="episodeTitle">{ep.title}</span>
+                  {ep.description && <p className="episodeDesc">{ep.description}</p>}
+                  <span className="episodeDuration">
+                    {Math.floor((ep.duration || 1800) / 60)} mins
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="retroEmptyStateContainer">
+            <p>No episodes currently released for this show.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -415,24 +517,51 @@ export function PodcastPage() {
 export function EpisodePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [episode, setEpisode] = useState<PodcastEpisode | null>(null);
+  const [loading, setLoading] = useState(true);
+  const player = usePlayerStore();
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    api
+      .getPodcastEpisode(id)
+      .then((data) => {
+        setEpisode(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) return <div className="retroLoadingMsg">Loading episode...</div>;
 
   return (
-    <div style={{ padding: 40 }}>
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          background: 'transparent',
-          color: 'var(--text-subdued)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          marginBottom: 20,
-        }}
-      >
-        ← Back
+    <div className="retroDetailPage">
+      <button className="retroBackBtn" onClick={() => navigate(-1)}>
+        <ArrowLeft size={16} />
+        <span>Back</span>
       </button>
-      <h1>Podcast Episode</h1>
-      <p style={{ color: 'var(--text-subdued)' }}>Select an episode from the podcast directory to play.</p>
+
+      {episode ? (
+        <div className="retroEpisodeDetailCard">
+          <h1 className="retroDetailTitle">{episode.title}</h1>
+          {episode.description && <p className="retroDetailDesc">{episode.description}</p>}
+          <button
+            className="retroBigPlayBtn"
+            onClick={() => player.setCurrent(episode as any)}
+          >
+            <Play size={18} fill="#000" />
+            <span>PLAY EPISODE</span>
+          </button>
+        </div>
+      ) : (
+        <div className="retroEmptyStateContainer">
+          <h2>Episode Not Found</h2>
+          <p>Please select an episode from the podcast directory.</p>
+        </div>
+      )}
     </div>
   );
 }

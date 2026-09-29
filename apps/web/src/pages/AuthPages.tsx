@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Mail, Lock, User, Radio, AlertCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import soniqueLogo from '../assets/sonique-logo.jpg';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -26,74 +27,65 @@ export function LoginPage() {
   };
 
   return (
-    <div className="spotifyAuthContainer">
-      <div className="spotifyAuthCard">
-        {/* Spotify Logo Header */}
-        <div className="spotifyAuthLogo" onClick={() => navigate('/')}>
-          <Radio size={36} color="#1ed760" />
-          <span>Sonique</span>
+    <div className="retroAuthContainer">
+      <div className="retroAuthCard">
+        {/* Sonique Logo Header */}
+        <div className="retroAuthLogo" onClick={() => navigate('/')}>
+          <img src={soniqueLogo} alt="Sonique" className="retroAuthLogoImg" />
+          <div className="retroAuthBrand">
+            <span className="retroAuthBrandTitle">Sonique</span>
+            <span className="retroAuthBrandSub">AUDIOPHILE VINYL STREAMING</span>
+          </div>
         </div>
 
-        <h1 className="spotifyAuthTitle">Log in to Sonique</h1>
+        <h1 className="retroAuthTitle">Sign In to Your Account</h1>
 
         {(localError || error) && (
-          <div className="spotifyAuthError">
-            <AlertCircle size={18} />
+          <div className="retroAuthError">
+            <AlertCircle size={16} />
             <span>{localError || error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="spotifyAuthForm">
-          <div className="spotifyFormField">
-            <label>Email or username</label>
-            <div className="spotifyInputWrap">
-              <Mail size={18} className="inputIcon" />
+        <form onSubmit={handleSubmit} className="retroAuthForm">
+          <div className="retroFormField">
+            <label>Email address</label>
+            <div className="retroInputWrap">
+              <Mail size={16} className="retroInputIcon" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email or username"
+                placeholder="name@domain.com"
                 required
               />
             </div>
           </div>
 
-          <div className="spotifyFormField">
+          <div className="retroFormField">
             <label>Password</label>
-            <div className="spotifyInputWrap">
-              <Lock size={18} className="inputIcon" />
+            <div className="retroInputWrap">
+              <Lock size={16} className="retroInputIcon" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
+                placeholder="••••••••"
                 required
               />
             </div>
           </div>
 
-          <div className="spotifyAuthMeta">
-            <label className="spotifyCheckbox">
-              <input type="checkbox" defaultChecked />
-              <span>Remember me</span>
-            </label>
-            <button type="button" className="spotifyLinkBtn">
-              Forgot your password?
-            </button>
-          </div>
-
-          <button type="submit" className="spotifyPrimaryBtn" disabled={loading}>
-            {loading ? 'Logging in...' : 'Log In'}
+          <button type="submit" className="retroBlackBtn fullWidth" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <div className="spotifyAuthDivider" />
-
-        <div className="spotifyAuthFooter">
+        <div className="retroAuthFooter">
           <span>Don't have an account?</span>
-          <button type="button" onClick={() => navigate('/register')} className="spotifySecondaryBtn">
-            Sign up for Sonique
-          </button>
+          <Link to="/register" className="retroAuthLink">
+            Create an account
+          </Link>
         </div>
       </div>
     </div>
@@ -112,11 +104,11 @@ export function RegisterPage() {
     e.preventDefault();
     setLocalError(null);
     if (!name.trim() || !email.trim() || !password) {
-      setLocalError('Please fill in all required fields.');
+      setLocalError('Please fill out all fields.');
       return;
     }
     if (password.length < 6) {
-      setLocalError('Password must be at least 6 characters long.');
+      setLocalError('Password must be at least 6 characters.');
       return;
     }
     try {
@@ -128,42 +120,45 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="spotifyAuthContainer">
-      <div className="spotifyAuthCard">
-        {/* Spotify Logo Header */}
-        <div className="spotifyAuthLogo" onClick={() => navigate('/')}>
-          <Radio size={36} color="#1ed760" />
-          <span>Sonique</span>
+    <div className="retroAuthContainer">
+      <div className="retroAuthCard">
+        {/* Sonique Logo Header */}
+        <div className="retroAuthLogo" onClick={() => navigate('/')}>
+          <img src={soniqueLogo} alt="Sonique" className="retroAuthLogoImg" />
+          <div className="retroAuthBrand">
+            <span className="retroAuthBrandTitle">Sonique</span>
+            <span className="retroAuthBrandSub">AUDIOPHILE VINYL STREAMING</span>
+          </div>
         </div>
 
-        <h1 className="spotifyAuthTitle">Sign up for free to start listening</h1>
+        <h1 className="retroAuthTitle">Create Your Account</h1>
 
         {(localError || error) && (
-          <div className="spotifyAuthError">
-            <AlertCircle size={18} />
+          <div className="retroAuthError">
+            <AlertCircle size={16} />
             <span>{localError || error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="spotifyAuthForm">
-          <div className="spotifyFormField">
-            <label>What's your name?</label>
-            <div className="spotifyInputWrap">
-              <User size={18} className="inputIcon" />
+        <form onSubmit={handleSubmit} className="retroAuthForm">
+          <div className="retroFormField">
+            <label>Full Name</label>
+            <div className="retroInputWrap">
+              <User size={16} className="retroInputIcon" />
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="This appears on your profile"
+                placeholder="Miles Davis"
                 required
               />
             </div>
           </div>
 
-          <div className="spotifyFormField">
-            <label>What's your email?</label>
-            <div className="spotifyInputWrap">
-              <Mail size={18} className="inputIcon" />
+          <div className="retroFormField">
+            <label>Email address</label>
+            <div className="retroInputWrap">
+              <Mail size={16} className="retroInputIcon" />
               <input
                 type="email"
                 value={email}
@@ -174,36 +169,30 @@ export function RegisterPage() {
             </div>
           </div>
 
-          <div className="spotifyFormField">
-            <label>Create a password</label>
-            <div className="spotifyInputWrap">
-              <Lock size={18} className="inputIcon" />
+          <div className="retroFormField">
+            <label>Password (min. 6 characters)</label>
+            <div className="retroInputWrap">
+              <Lock size={16} className="retroInputIcon" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Create a password"
+                placeholder="••••••••"
                 required
               />
             </div>
           </div>
 
-          <p className="spotifyLegalText">
-            By clicking on sign-up, you agree to Sonique's Terms and Conditions of Use and Privacy Policy.
-          </p>
-
-          <button type="submit" className="spotifyPrimaryBtn" disabled={loading}>
-            {loading ? 'Creating account...' : 'Sign Up'}
+          <button type="submit" className="retroBlackBtn fullWidth" disabled={loading}>
+            {loading ? 'Creating Account...' : 'Register'}
           </button>
         </form>
 
-        <div className="spotifyAuthDivider" />
-
-        <div className="spotifyAuthFooter">
+        <div className="retroAuthFooter">
           <span>Already have an account?</span>
-          <button type="button" onClick={() => navigate('/login')} className="spotifySecondaryBtn">
-            Log in here
-          </button>
+          <Link to="/login" className="retroAuthLink">
+            Sign in
+          </Link>
         </div>
       </div>
     </div>

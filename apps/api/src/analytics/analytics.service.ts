@@ -6,25 +6,45 @@ export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getOverview() {
-    const [totalUsers, totalTracks, totalPlaylists, totalPlaysResult] = await Promise.all([
-      this.prisma.user.count(),
-      this.prisma.track.count(),
-      this.prisma.playlist.count(),
-      this.prisma.track.aggregate({
-        _sum: { plays: true },
-      }),
-    ]);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [totalUsers, totalTracks, totalPlaylists, totalPlaysResult, activeTodayCount] =
+      await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.track.count(),
+        this.prisma.playlist.count(),
+        this.prisma.track.aggregate({
+          _sum: { plays: true },
+        }),
+        this.prisma.listeningHistory.groupBy({
+          by: ['userId'],
+          where: { playedAt: { gte: today } },
+        }),
+      ]);
 
     const topTracks = await this.prisma.track.findMany({
       orderBy: { plays: 'desc' },
       take: 5,
-      include: { artistRef: true },
+      include: {
+        artistRef: {
+          select: { id: true, name: true, imageUrl: true },
+        },
+      },
     });
 
+    // Sanitize user info: do not leak email, passwordHash, or private user details
     const recentStreamEvents = await this.prisma.listeningHistory.findMany({
       orderBy: { playedAt: 'desc' },
       take: 10,
-      include: { track: true, user: true },
+      include: {
+        track: {
+          select: { id: true, title: true, artist: true, coverUrl: true },
+        },
+        user: {
+          select: { id: true, name: true, username: true },
+        },
+      },
     });
 
     return {
@@ -33,7 +53,7 @@ export class AnalyticsService {
         totalUsers,
         totalTracks,
         totalPlaylists,
-        dailyActiveListeners: Math.max(1, Math.floor(totalUsers * 0.75)),
+        dailyActiveListeners: activeTodayCount.length,
       },
       topTracks,
       recentStreamEvents,
@@ -55,7 +75,33 @@ export class AnalyticsService {
       return null;
     }
 
-    const totalArtistPlays = artist.tracks.reduce((sum, t) => sum + (t.plays || 0), 0);
+    const totalArtistPlays = artist.tracks.reduce(
+      (sum, t) => sum + (t.plays || 0),
+      0,
+    );
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const trackIds = artist.tracks.map((t) => t.id);
+
+    // Calculate real monthly listeners from listening history
+    const monthlyListenersGroups = trackIds.length
+      ? await this.prisma.listeningHistory.groupBy({
+          by: ['userId'],
+          where: {
+            trackId: { in: trackIds },
+            playedAt: { gte: thirtyDaysAgo },
+          },
+        })
+      : [];
+
+    // Calculate real track likes across artist's tracks
+    const totalLikes = trackIds.length
+      ? await this.prisma.like.count({
+          where: { trackId: { in: trackIds } },
+        })
+      : 0;
 
     return {
       artist: {
@@ -66,8 +112,8 @@ export class AnalyticsService {
       },
       metrics: {
         totalStreams: totalArtistPlays,
-        monthlyListeners: Math.round(totalArtistPlays * 0.35) + 1200,
-        followers: Math.round(totalArtistPlays * 0.12) + 450,
+        monthlyListeners: monthlyListenersGroups.length,
+        followers: totalLikes,
       },
       topTracks: artist.tracks.slice(0, 5),
       discography: artist.albums,

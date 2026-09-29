@@ -2,26 +2,115 @@ import { Album, Artist, Playlist, PodcastEpisode, PodcastShow, Track, UserProfil
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api';
 
+const TOKEN_KEY = 'sonique_access_token';
+const REFRESH_KEY = 'sonique_refresh_token';
+
 function getStoredToken(): string | null {
   try {
-    return localStorage.getItem('sonique_access_token') || localStorage.getItem('aura_access_token') || null;
+    return localStorage.getItem(TOKEN_KEY) || null;
   } catch {
     return null;
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+function getStoredRefreshToken(): string | null {
+  try {
+    return localStorage.getItem(REFRESH_KEY) || null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveTokens(accessToken: string | null, refreshToken: string | null) {
+  try {
+    if (accessToken) {
+      localStorage.setItem(TOKEN_KEY, accessToken);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_KEY, refreshToken);
+    } else {
+      localStorage.removeItem(REFRESH_KEY);
+    }
+    // Clean up any legacy aura keys
+    localStorage.removeItem('aura_access_token');
+    localStorage.removeItem('aura_refresh_token');
+  } catch {}
+}
+
+let isRefreshing = false;
+let refreshSubscribers: ((token: string | null) => void)[] = [];
+
+function onRefreshed(token: string | null) {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+}
+
+async function attemptTokenRefresh(): Promise<string | null> {
+  const refreshToken = getStoredRefreshToken();
+  if (!refreshToken) return null;
+
+  try {
+    const res = await fetch(`${API_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!res.ok) {
+      saveTokens(null, null);
+      return null;
+    }
+
+    const data = await res.json();
+    if (data.accessToken) {
+      saveTokens(data.accessToken, data.refreshToken || refreshToken);
+      return data.accessToken;
+    }
+    saveTokens(null, null);
+    return null;
+  } catch {
+    saveTokens(null, null);
+    return null;
+  }
+}
+
+async function request<T>(path: string, options: RequestInit = {}, isRetry = false): Promise<T> {
   const token = getStoredToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options.headers as Record<string, string> || {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
     headers,
   });
+
+  // Handle 401 Unauthorized with token refresh and single retry
+  if (response.status === 401 && !isRetry && !path.startsWith('/auth/')) {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      const newToken = await attemptTokenRefresh();
+      isRefreshing = false;
+      onRefreshed(newToken);
+
+      if (newToken) {
+        return request<T>(path, options, true);
+      }
+    } else {
+      // Await pending refresh
+      const retryToken = await new Promise<string | null>((resolve) => {
+        refreshSubscribers.push(resolve);
+      });
+      if (retryToken) {
+        return request<T>(path, options, true);
+      }
+    }
+  }
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -56,6 +145,19 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ refreshToken }),
     }),
+  logout: async (refreshToken?: string) => {
+    try {
+      const token = refreshToken || getStoredRefreshToken();
+      await request<{ success: boolean }>('/auth/logout', {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken: token }),
+      });
+    } catch {
+      // Fallback: clear tokens locally even if API fails
+    } finally {
+      saveTokens(null, null);
+    }
+  },
   me: () => request<UserProfile>('/users/me'),
   updateMe: (input: { name?: string; username?: string }) =>
     request<UserProfile>('/users/me', {
@@ -64,7 +166,9 @@ export const api = {
     }),
 
   // File Upload (Storage)
-  uploadFile: async (file: File): Promise<{ url: string; filename: string; size: number; mimetype: string }> => {
+  uploadFile: async (
+    file: File,
+  ): Promise<{ url: string; filename: string; size: number; mimetype: string }> => {
     const formData = new FormData();
     formData.append('file', file);
     const token = getStoredToken();
@@ -98,71 +202,15 @@ export const api = {
   getAlbums: () => request<Album[]>('/catalog/albums'),
   getAlbum: (id: string) => request<Album>(`/catalog/albums/${id}`),
 
-  // Recommendations
-  getPersonalizedRecommendations: (userId?: string) =>
-    request<{
-      genres: string[];
-      recommendedTracks: Track[];
-      discoverWeekly: Track[];
-    }>(`/recommendations/personalized${userId ? `?userId=${userId}` : ''}`),
-  getSimilarTracks: (trackId: string) =>
-    request<Track[]>(`/recommendations/similar/${trackId}`),
-
-  // Subscriptions & Monetization
-  getCurrentSubscription: (userId?: string) =>
-    request<{
-      plan: 'FREE' | 'PREMIUM';
-      isActive: boolean;
-      currentPeriodEnd?: string;
-      features: {
-        audioQuality: string;
-        offlineDownloads: boolean;
-        listenTogetherRooms: string;
-        adFree: boolean;
-      };
-    }>(`/subscriptions/current${userId ? `?userId=${userId}` : ''}`),
-  upgradeToPremium: (userId: string, plan: 'MONTHLY' | 'ANNUAL' = 'MONTHLY') =>
-    request<{ success: boolean; message: string; subscription: any }>(
-      '/subscriptions/upgrade',
-      {
-        method: 'POST',
-        body: JSON.stringify({ userId, plan }),
-      }
-    ),
-  cancelSubscription: (userId: string) =>
-    request<{ success: boolean; message: string }>(
-      '/subscriptions/cancel',
-      {
-        method: 'POST',
-        body: JSON.stringify({ userId }),
-      }
-    ),
-
-  // Analytics
-  getAnalyticsOverview: () =>
-    request<{
-      stats: {
-        totalStreams: number;
-        totalUsers: number;
-        totalTracks: number;
-        totalPlaylists: number;
-        dailyActiveListeners: number;
-      };
-      topTracks: Track[];
-      recentStreamEvents: any[];
-    }>('/analytics/overview'),
-  getArtistMetrics: (artistId: string) =>
-    request<any>(`/analytics/artist/${artistId}`),
-
   // Tracks
   getTracks: () => request<Track[]>('/tracks'),
   getTrack: (id: string) => request<Track>(`/tracks/${id}`),
   createTrack: (input: {
     title: string;
     artist: string;
+    album?: string;
     duration: number;
     audioUrl: string;
-    album?: string;
     coverUrl?: string;
     genre?: string;
   }) =>
@@ -172,15 +220,15 @@ export const api = {
     }),
   updateTrack: (
     id: string,
-    input: Partial<{
-      title: string;
-      artist: string;
-      duration: number;
-      audioUrl: string;
-      album: string;
-      coverUrl: string;
-      genre: string;
-    }>,
+    input: {
+      title?: string;
+      artist?: string;
+      album?: string;
+      duration?: number;
+      audioUrl?: string;
+      coverUrl?: string;
+      genre?: string;
+    },
   ) =>
     request<Track>(`/tracks/${id}`, {
       method: 'PATCH',
@@ -191,8 +239,20 @@ export const api = {
       method: 'DELETE',
     }),
 
+  // Recommendations
+  getPersonalizedRecommendations: (userId?: string) =>
+    request<{
+      recommendedTracks: Track[];
+      discoverWeekly: Track[];
+      genres: string[];
+    }>(
+      `/recommendations/personalized${userId ? `?userId=${encodeURIComponent(userId)}` : ''}`,
+    ),
+  getSimilarTracks: (trackId: string) =>
+    request<Track[]>(`/recommendations/similar/${trackId}`),
+
   // Playlists
-  getPublicPlaylists: () => request<Playlist[]>('/playlists'),
+  getPlaylists: () => request<Playlist[]>('/playlists'),
   getMyPlaylists: () => request<Playlist[]>('/playlists/me'),
   getPlaylist: (id: string) => request<Playlist>(`/playlists/${id}`),
   createPlaylist: (input: {
@@ -280,6 +340,22 @@ export const api = {
   getPodcastShow: (id: string) => request<PodcastShow>(`/podcasts/shows/${id}`),
   getPodcastEpisode: (id: string) =>
     request<PodcastEpisode>(`/podcasts/episodes/${id}`),
+
+  // Subscriptions
+  getCurrentSubscription: () => request<any>('/subscriptions/current'),
+  upgradeSubscription: (plan?: 'MONTHLY' | 'ANNUAL') =>
+    request<any>('/subscriptions/upgrade', {
+      method: 'POST',
+      body: JSON.stringify({ plan: plan || 'MONTHLY' }),
+    }),
+  cancelSubscription: () =>
+    request<any>('/subscriptions/cancel', {
+      method: 'POST',
+    }),
+
+  // Analytics
+  getOverviewAnalytics: () => request<any>('/analytics/overview'),
+  getArtistAnalytics: (id: string) => request<any>(`/analytics/artist/${id}`),
 
   // Health
   getHealth: () =>

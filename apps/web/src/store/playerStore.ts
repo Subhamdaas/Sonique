@@ -1,72 +1,30 @@
 import { create } from 'zustand';
 import type { Playable, Track } from '../types';
+import { audioEngine } from '../services/audioEngine';
 import { api } from '../services/api';
-
-// Shared HTML5 Audio element instance
-let globalAudio: HTMLAudioElement | null = null;
-let telemetryTimer: number | null = null;
-let ytPlayer: any = null;
-let ytTimer: number | null = null;
-
-function getAudio(): HTMLAudioElement {
-  if (!globalAudio) {
-    globalAudio = new Audio();
-  }
-  return globalAudio;
-}
 
 export function extractYouTubeId(url?: string | null): string | null {
   if (!url) return null;
-  const match = url.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/
-  );
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
   return match ? match[1] : null;
 }
 
-// Dynamically load YouTube Iframe API
-let ytReadyPromise: Promise<void> | null = null;
-function loadYouTubeApi(): Promise<void> {
-  if (ytReadyPromise) return ytReadyPromise;
-  if ((window as any).YT && (window as any).YT.Player) {
-    ytReadyPromise = Promise.resolve();
-    return ytReadyPromise;
-  }
-
-  ytReadyPromise = new Promise((resolve) => {
-    const existing = document.getElementById('youtube-iframe-api');
-    if (!existing) {
-      const tag = document.createElement('script');
-      tag.id = 'youtube-iframe-api';
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.body.appendChild(tag);
-    }
-    (window as any).onYouTubeIframeAPIReady = () => {
-      resolve();
-    };
-    // Fallback if already ready
-    setTimeout(() => {
-      if ((window as any).YT && (window as any).YT.Player) {
-        resolve();
-      }
-    }, 1500);
-  });
-  return ytReadyPromise;
-}
-
-interface PlayerState {
+export interface PlayerState {
   current: Playable | null;
   queue: Playable[];
   isPlaying: boolean;
   progress: number;
   duration: number;
   volume: number;
+  isMuted: boolean;
   shuffle: boolean;
   repeat: 'off' | 'all' | 'one';
   error: string | null;
-  isYouTube: boolean;
-  youtubeId: string | null;
+  activePlaylistId: string | null;
 
   setCurrent: (item: Playable, newQueue?: Playable[]) => void;
+  selectTrack: (item: Playable, shouldPlay?: boolean, playlistId?: string | null) => void;
+  playPlaylist: (playlistId: string, track: Playable, playlistTracks?: Playable[]) => void;
   setQueue: (queue: Playable[]) => void;
   play: () => void;
   pause: () => void;
@@ -75,42 +33,40 @@ interface PlayerState {
   previous: () => void;
   seek: (seconds: number) => void;
   setVolume: (volume: number) => void;
+  toggleMute: () => void;
   toggleShuffle: () => void;
   cycleRepeat: () => void;
-  tick: () => void;
-  syncYouTubeProgress: (currentTime: number, duration: number) => void;
+  clearQueue: () => void;
+  removeFromQueue: (index: number) => void;
 }
 
+let lastRecordedTrackId: string | null = null;
+let playbackTimer: any = null;
+
 export const usePlayerStore = create<PlayerState>((set, get) => {
-  const audio = getAudio();
+  // Wire up audio engine events
+  audioEngine.onTimeUpdate = (currentTime: number) => {
+    set({ progress: Math.floor(currentTime) });
+  };
 
-  // Setup HTML5 audio event listeners
-  audio.ontimeupdate = () => {
-    if (!get().isYouTube) {
-      set({ progress: Math.floor(audio.currentTime) });
+  audioEngine.onDurationChange = (duration: number) => {
+    if (!isNaN(duration) && duration > 0) {
+      set({ duration: Math.floor(duration) });
     }
   };
 
-  audio.onloadedmetadata = () => {
-    if (!get().isYouTube) {
-      set({ duration: Math.floor(audio.duration) || get().current?.duration || 0 });
-    }
-  };
-
-  audio.onended = () => {
-    const { repeat, next } = get();
-    if (repeat === 'one') {
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
+  audioEngine.onEnded = () => {
+    const { repeat, next, current } = get();
+    if (repeat === 'one' && current) {
+      audioEngine.seek(0);
+      audioEngine.play(current.audioUrl, 0);
     } else {
       next();
     }
   };
 
-  audio.onerror = () => {
-    if (!get().isYouTube) {
-      set({ error: 'Audio stream preview unavailable' });
-    }
+  audioEngine.onPlayStateChange = (isPlaying: boolean) => {
+    set({ isPlaying });
   };
 
   return {
@@ -120,234 +76,195 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
     progress: 0,
     duration: 0,
     volume: 0.8,
+    isMuted: false,
     shuffle: false,
     repeat: 'off',
     error: null,
-    isYouTube: false,
-    youtubeId: null,
-
-    syncYouTubeProgress: (currentTime: number, duration: number) => {
-      set({
-        progress: Math.floor(currentTime),
-        duration: Math.floor(duration) || get().duration || 180,
-      });
-    },
+    activePlaylistId: null,
 
     setCurrent: (item: Playable, newQueue?: Playable[]) => {
-      const audio = getAudio();
-      const currentQueue = newQueue || (get().queue.length ? get().queue : [item]);
+      if (!item) return;
 
-      // Ensure item is in queue
+      const currentQueue = newQueue || (get().queue.length ? get().queue : [item]);
       const inQueue = currentQueue.some((q) => q.id === item.id);
       const updatedQueue = inQueue ? currentQueue : [...currentQueue, item];
 
-      const ytId = extractYouTubeId(item.audioUrl);
-      const isYt = Boolean(ytId);
-
-      // Auto fallback cover to YouTube thumbnail if missing or broken google search
-      let resolvedCover = item.coverUrl || item.art;
-      if (isYt && ytId && (!resolvedCover || resolvedCover.includes('google.com/search'))) {
-        resolvedCover = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-      }
-
-      const preparedItem: Playable = {
-        ...item,
-        coverUrl: resolvedCover,
-        art: resolvedCover,
-      };
-
       set({
-        current: preparedItem,
+        current: item,
         queue: updatedQueue,
         progress: 0,
-        duration: item.duration || 180,
+        duration: item.duration || 0,
         isPlaying: true,
         error: null,
-        isYouTube: isYt,
-        youtubeId: ytId,
       });
 
-      if (isYt) {
-        // Pause HTML5 audio
-        audio.pause();
-        audio.src = '';
-
-        // Start YouTube polling timer
-        if (ytTimer) clearInterval(ytTimer);
-        ytTimer = window.setInterval(() => {
-          if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && get().isPlaying) {
-            try {
-              const cur = ytPlayer.getCurrentTime() || 0;
-              const dur = ytPlayer.getDuration() || get().duration;
-              get().syncYouTubeProgress(cur, dur);
-            } catch (e) {}
-          }
-        }, 500);
-
-        loadYouTubeApi().then(() => {
-          if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-            ytPlayer.loadVideoById(ytId);
-            ytPlayer.setVolume(Math.round(get().volume * 100));
-            ytPlayer.playVideo();
-          }
-        });
-      } else {
-        // Direct audio stream (MP3 / AAC / WAV)
-        if (ytTimer) clearInterval(ytTimer);
-        if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
-          try {
-            ytPlayer.stopVideo();
-          } catch (e) {}
-        }
-
-        if (item.audioUrl) {
-          audio.src = item.audioUrl;
-          audio.volume = get().volume;
-          audio.play().catch((err) => {
-            console.warn('Playback error / autoplay restricted:', err.message);
-          });
-        }
+      if (item.audioUrl) {
+        audioEngine.play(item.audioUrl, 0);
       }
 
-      // Record telemetry event after 5s of listening
-      if (telemetryTimer) clearTimeout(telemetryTimer);
-      telemetryTimer = window.setTimeout(() => {
-        if (item.id && get().isPlaying) {
-          api.recordPlaybackEvent(item.id, 5).catch(() => {});
-        }
-      }, 5000);
+      // Record playback event to backend API telemetry
+      if (item.id && item.id !== lastRecordedTrackId) {
+        lastRecordedTrackId = item.id;
+        if (playbackTimer) clearTimeout(playbackTimer);
+        // Record event after 5 seconds of active playback
+        playbackTimer = setTimeout(() => {
+          api.recordPlaybackEvent(item.id).catch(() => {});
+        }, 5000);
+      }
     },
 
-    setQueue: (queue: Playable[]) => set({ queue }),
+    selectTrack: (item: Playable, shouldPlay = true, playlistId = null) => {
+      if (!item) return;
+      const { queue } = get();
+      const inQueue = queue.some((q) => q.id === item.id);
+      const updatedQueue = inQueue ? queue : [...queue, item];
 
-    play: () => {
-      const { current, isYouTube } = get();
-      if (!current) return;
+      set({
+        current: item,
+        queue: updatedQueue,
+        activePlaylistId: playlistId,
+        progress: 0,
+        duration: item.duration || 0,
+        isPlaying: shouldPlay,
+      });
 
-      if (isYouTube) {
-        if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
-          try {
-            ytPlayer.playVideo();
-          } catch (e) {}
-        }
-      } else {
-        const audio = getAudio();
-        if (audio.src) {
-          audio.play().catch(() => {});
+      if (item.audioUrl) {
+        if (shouldPlay) {
+          audioEngine.play(item.audioUrl, 0);
+        } else {
+          audioEngine.loadTrack(item.audioUrl, 0);
         }
       }
-      set({ isPlaying: true });
+    },
+
+    playPlaylist: (playlistId: string, track: Playable, playlistTracks?: Playable[]) => {
+      const queueTracks = playlistTracks && playlistTracks.length > 0 ? playlistTracks : [track];
+      set({
+        current: track,
+        queue: queueTracks,
+        activePlaylistId: playlistId,
+        progress: 0,
+        duration: track.duration || 0,
+        isPlaying: true,
+      });
+
+      if (track.audioUrl) {
+        audioEngine.play(track.audioUrl, 0);
+      }
+    },
+
+    setQueue: (queue: Playable[]) => {
+      set({ queue });
+    },
+
+    clearQueue: () => {
+      set({ queue: [] });
+    },
+
+    removeFromQueue: (index: number) => {
+      const { queue } = get();
+      if (index >= 0 && index < queue.length) {
+        const next = [...queue];
+        next.splice(index, 1);
+        set({ queue: next });
+      }
+    },
+
+    play: () => {
+      const { current, progress } = get();
+      if (current && current.audioUrl) {
+        audioEngine.play(current.audioUrl, progress);
+        set({ isPlaying: true });
+      }
     },
 
     pause: () => {
-      const { isYouTube } = get();
-      if (isYouTube) {
-        if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-          try {
-            ytPlayer.pauseVideo();
-          } catch (e) {}
-        }
-      } else {
-        const audio = getAudio();
-        audio.pause();
-      }
+      audioEngine.pause();
       set({ isPlaying: false });
     },
 
     toggle: () => {
-      const { isPlaying, play, pause } = get();
-      if (isPlaying) pause();
-      else play();
+      const { isPlaying, current, play, pause } = get();
+      if (!current) return;
+      if (isPlaying) {
+        pause();
+      } else {
+        play();
+      }
     },
 
     next: () => {
-      const { current, queue, shuffle, setCurrent } = get();
-      if (!current || !queue.length) return;
+      const { queue, current, shuffle, repeat, setCurrent } = get();
+      if (queue.length === 0) return;
 
       if (shuffle && queue.length > 1) {
-        const remaining = queue.filter((x) => x.id !== current.id);
-        const randomIndex = Math.floor(Math.random() * remaining.length);
-        setCurrent(remaining[randomIndex]);
+        const randomIndex = Math.floor(Math.random() * queue.length);
+        setCurrent(queue[randomIndex], queue);
         return;
       }
 
-      const currentIndex = queue.findIndex((x) => x.id === current.id);
-      const nextIndex = (currentIndex + 1) % queue.length;
-      setCurrent(queue[nextIndex]);
+      const currentIndex = queue.findIndex((t) => t.id === current?.id);
+      if (currentIndex === -1 || currentIndex === queue.length - 1) {
+        if (repeat === 'all' && queue.length > 0) {
+          setCurrent(queue[0], queue);
+        } else {
+          audioEngine.pause();
+          set({ isPlaying: false, progress: 0 });
+        }
+      } else {
+        setCurrent(queue[currentIndex + 1], queue);
+      }
     },
 
     previous: () => {
-      const { current, queue, progress, seek, setCurrent } = get();
-      if (!current || !queue.length) return;
-
+      const { queue, current, progress, seek, setCurrent } = get();
       if (progress > 3) {
         seek(0);
         return;
       }
 
-      const currentIndex = queue.findIndex((x) => x.id === current.id);
-      const prevIndex = (currentIndex - 1 + queue.length) % queue.length;
-      setCurrent(queue[prevIndex]);
+      if (queue.length === 0) return;
+      const currentIndex = queue.findIndex((t) => t.id === current?.id);
+      if (currentIndex > 0) {
+        setCurrent(queue[currentIndex - 1], queue);
+      } else {
+        seek(0);
+      }
     },
 
     seek: (seconds: number) => {
-      const { isYouTube } = get();
-      if (isYouTube) {
-        if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
-          try {
-            ytPlayer.seekTo(seconds, true);
-          } catch (e) {}
-        }
-      } else {
-        const audio = getAudio();
-        if (audio.duration) {
-          audio.currentTime = seconds;
-        }
-      }
-      set({ progress: seconds });
+      const { duration } = get();
+      const clamped = Math.max(0, Math.min(seconds, duration || seconds));
+      audioEngine.seek(clamped);
+      set({ progress: Math.floor(clamped) });
     },
 
-    setVolume: (volume: number) => {
-      const clamped = Math.max(0, Math.min(1, volume));
-      const { isYouTube } = get();
-
-      if (isYouTube) {
-        if (ytPlayer && typeof ytPlayer.setVolume === 'function') {
-          try {
-            ytPlayer.setVolume(Math.round(clamped * 100));
-          } catch (e) {}
-        }
-      } else {
-        const audio = getAudio();
-        audio.volume = clamped;
-      }
-      set({ volume: clamped });
+    setVolume: (vol: number) => {
+      const clamped = Math.max(0, Math.min(1, vol));
+      audioEngine.setVolume(clamped);
+      set({ volume: clamped, isMuted: clamped === 0 });
     },
 
-    toggleShuffle: () => set((s) => ({ shuffle: !s.shuffle })),
-
-    cycleRepeat: () =>
-      set((s) => ({
-        repeat: s.repeat === 'off' ? 'all' : s.repeat === 'all' ? 'one' : 'off',
-      })),
-
-    tick: () => {
-      const s = get();
-      if (!s.current || !s.isPlaying) return;
-      if (!s.isYouTube && (!globalAudio?.src || globalAudio.paused)) {
-        const duration = s.duration || s.current.duration || 180;
-        if (s.progress + 1 >= duration) {
-          if (s.repeat === 'one') set({ progress: 0 });
-          else s.next();
-        } else {
-          set({ progress: s.progress + 1 });
-        }
+    toggleMute: () => {
+      const { isMuted, volume } = get();
+      if (isMuted) {
+        audioEngine.setVolume(volume || 0.8);
+        set({ isMuted: false });
+      } else {
+        audioEngine.setVolume(0);
+        set({ isMuted: true });
       }
+    },
+
+    toggleShuffle: () => {
+      set((state) => ({ shuffle: !state.shuffle }));
+    },
+
+    cycleRepeat: () => {
+      const { repeat } = get();
+      const order: ('off' | 'all' | 'one')[] = ['off', 'all', 'one'];
+      const nextIndex = (order.indexOf(repeat) + 1) % order.length;
+      set({ repeat: order[nextIndex] });
     },
   };
 });
-
-// Helper for Layout to register the YouTube player iframe instance
-export function setGlobalYouTubePlayer(playerInstance: any) {
-  ytPlayer = playerInstance;
-}

@@ -45,7 +45,7 @@ export class TracksController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string) {
-    return this.tracksService.remove(id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.tracksService.remove(id, req.user.sub, req.user.role);
   }
 }

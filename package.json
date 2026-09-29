@@ -8,13 +8,13 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "npm --prefix apps/web run dev",
     "dev:web": "npm --prefix apps/web run dev",
     "dev:api": "npm --prefix apps/api run dev",
+    "build": "npm --prefix apps/web run build",
     "build:web": "npm --prefix apps/web run build",
     "build:api": "npm --prefix apps/api run build",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "npm --prefix apps/web run preview"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
