@@ -1,124 +1,57 @@
-import {
-  Home,
-  Heart,
-  Library,
-  Radio,
-  SlidersHorizontal,
-  Compass,
-  Crown,
-  Sparkles,
-  ShieldCheck,
-  Keyboard,
-  Disc3,
-  Mic2,
-  Settings,
-} from 'lucide-react';
+import { Home, Heart, Library, Disc3, SlidersHorizontal, Mic2, Radio } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
+
+export type ActiveNavTab = 'home' | 'liked' | 'music' | 'turntable' | 'equalizer' | 'tags' | 'podcasts' | 'live' | 'library';
 
 interface RetroSidebarProps {
   onOpenEqualizer?: () => void;
-  onOpenShortcuts?: () => void;
+  activeTab?: ActiveNavTab;
+  onTabChange?: (tab: ActiveNavTab) => void;
 }
 
-export default function RetroSidebar({ onOpenEqualizer, onOpenShortcuts }: RetroSidebarProps) {
-  const { user } = useAuthStore();
+export default function RetroSidebar({ onOpenEqualizer, activeTab, onTabChange }: RetroSidebarProps) {
   const location = useLocation();
 
   const navItems = [
-    { to: '/', label: 'Home', icon: <Home size={20} /> },
-    { to: '/music', label: 'Music Experience', icon: <Disc3 size={20} /> },
-    { to: '/podcasts', label: 'Podcasts & Spoken Audio', icon: <Mic2 size={20} /> },
-    { to: '/live', label: 'Live Broadcasts & Rooms', icon: <Radio size={20} /> },
-    { to: '/library', label: 'Library', icon: <Library size={20} /> },
-    { to: '/liked-songs', label: 'Liked Songs', icon: <Heart size={20} /> },
-    { to: '/settings', label: 'Settings', icon: <Settings size={20} /> },
+    { to: '/', label: 'Home Dashboard', icon: <Home size={22} /> },
+    { to: '/music', label: 'Music Experience', icon: <Disc3 size={22} /> },
+    { to: '/podcasts', label: 'Podcasts & Spoken Audio', icon: <Mic2 size={22} /> },
+    { to: '/live', label: 'Live Broadcasts & Rooms', icon: <Radio size={22} /> },
+    { to: '/library', label: 'Library', icon: <Library size={22} /> },
+    { to: '/liked-songs', label: 'Liked Songs', icon: <Heart size={22} /> },
   ];
 
   return (
     <nav className="retroSidebarNav" aria-label="Main Navigation">
-      <div className="retroSidebarGroup">
-        {navItems.map((item) => {
-          const isActive =
-            item.to === '/'
-              ? location.pathname === '/'
-              : location.pathname.startsWith(item.to);
+      {navItems.map((item) => {
+        const isActive =
+          item.to === '/'
+            ? location.pathname === '/' || location.pathname === '/music'
+            : location.pathname.startsWith(item.to);
 
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={`retroNavIconBtn ${isActive ? 'active' : ''}`}
-              title={item.label}
-              aria-label={item.label}
-            >
-              {item.icon}
-            </NavLink>
-          );
-        })}
-      </div>
-
-      <div className="retroSidebarDivider" />
-
-      {/* Feature & Tools Group */}
-      <div className="retroSidebarGroup">
-        {onOpenEqualizer && (
-          <button
-            className="retroNavIconBtn"
-            onClick={onOpenEqualizer}
-            title="Studio Equalizer"
-            aria-label="Studio Equalizer"
-          >
-            <SlidersHorizontal size={20} />
-          </button>
-        )}
-
-        {onOpenShortcuts && (
-          <button
-            className="retroNavIconBtn"
-            onClick={onOpenShortcuts}
-            title="Keyboard Shortcuts (?)"
-            aria-label="Keyboard Shortcuts"
-          >
-            <Keyboard size={20} />
-          </button>
-        )}
-
-        <NavLink
-          to="/premium"
-          className={({ isActive }) =>
-            `retroNavIconBtn ${isActive ? 'active' : ''}`
-          }
-          title="Audiophile Premium"
-          aria-label="Audiophile Premium"
-        >
-          <Crown size={20} />
-        </NavLink>
-
-        <NavLink
-          to="/creator"
-          className={({ isActive }) =>
-            `retroNavIconBtn ${isActive ? 'active' : ''}`
-          }
-          title="Creator Studio"
-          aria-label="Creator Studio"
-        >
-          <Sparkles size={20} />
-        </NavLink>
-
-        {user?.role === 'ADMIN' && (
+        return (
           <NavLink
-            to="/admin"
-            className={({ isActive }) =>
-              `retroNavIconBtn ${isActive ? 'active' : ''}`
-            }
-            title="Admin Console"
-            aria-label="Admin Console"
+            key={item.to}
+            to={item.to}
+            className={`retroNavIconBtn ${isActive ? 'active' : ''}`}
+            title={item.label}
+            aria-label={item.label}
           >
-            <ShieldCheck size={20} />
+            {item.icon}
           </NavLink>
-        )}
-      </div>
+        );
+      })}
+
+      {onOpenEqualizer && (
+        <button
+          className="retroNavIconBtn"
+          onClick={onOpenEqualizer}
+          title="Audio Equalizer"
+          aria-label="Audio Equalizer"
+        >
+          <SlidersHorizontal size={22} />
+        </button>
+      )}
     </nav>
   );
 }

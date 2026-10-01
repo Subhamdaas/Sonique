@@ -4,6 +4,7 @@ import { Play, Keyboard, X } from 'lucide-react';
 import HeaderBar from './HeaderBar';
 import RetroSidebar from './RetroSidebar';
 import EqualizerModal from './EqualizerModal';
+import { NotificationModal, ProfileModal } from './RetroModals';
 import PersistentPlayerBar from './PersistentPlayerBar';
 import { useAuthStore } from '../store/authStore';
 import { usePlayerStore } from '../store/playerStore';
@@ -18,6 +19,8 @@ function formatTime(seconds: number): string {
 export default function AppShell() {
   const [isEqualizerOpen, setIsEqualizerOpen] = useState(false);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const hydrateAuth = useAuthStore((s) => s.hydrate);
   const hydratePlayback = usePlayerStore((s) => s.hydratePlayback);
   const current = usePlayerStore((s) => s.current);
@@ -106,14 +109,17 @@ export default function AppShell() {
         )}
 
         {/* Top Header */}
-        <HeaderBar onOpenShortcuts={() => setIsShortcutsModalOpen(true)} />
+        <HeaderBar
+          onOpenNotifications={() => setIsNotificationsOpen(true)}
+          onOpenMessages={() => setIsNotificationsOpen(true)}
+          onOpenProfile={() => setIsProfileOpen(true)}
+        />
 
         {/* Console Body: Sidebar + Main Stage */}
         <div className="retroConsoleBody">
           {/* Vertical Icon Navigation Column */}
           <RetroSidebar
             onOpenEqualizer={() => setIsEqualizerOpen(true)}
-            onOpenShortcuts={() => setIsShortcutsModalOpen(true)}
           />
 
           {/* Main Route Content Area */}
@@ -130,6 +136,18 @@ export default function AppShell() {
       <EqualizerModal
         isOpen={isEqualizerOpen}
         onClose={() => setIsEqualizerOpen(false)}
+      />
+
+      {/* Hardware Notifications Modal */}
+      <NotificationModal
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+      />
+
+      {/* Hardware Profile & Settings Modal */}
+      <ProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
       />
 
       {/* Keyboard Shortcuts Helper Modal (Requirement 18) */}

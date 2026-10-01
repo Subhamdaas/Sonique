@@ -7,21 +7,13 @@ import {
   Shuffle,
   Maximize2,
   Minimize2,
+  MessageSquare,
   Heart,
-  Volume2,
-  VolumeX,
   ListMusic,
-  Disc3,
-  Repeat,
-  Mic2,
-  Moon,
-  Share2,
-  Gauge,
-  X,
-  Check,
 } from 'lucide-react';
 import { usePlayerStore } from '../store/playerStore';
 import { useLibraryStore } from '../store/libraryStore';
+
 import { audioEngine } from '../services/audioEngine';
 import soniqueLogo from '../assets/sonique-logo.jpg';
 
@@ -33,20 +25,17 @@ interface TurntableProps {
 export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps) {
   const player = usePlayerStore();
   const { likedTrackIds, toggleLike } = useLibraryStore();
-
+  const [likesCount, setLikesCount] = useState<number>(392);
+  const [hasLiked, setHasLiked] = useState<boolean>(false);
   const [isScratching, setIsScratching] = useState<boolean>(false);
   const [hoverTime, setHoverTime] = useState<string | null>(null);
   const [freqBars, setFreqBars] = useState<number[]>([]);
   const [rpm, setRpm] = useState<33 | 45>(33);
   const [pitchOffset, setPitchOffset] = useState<number>(0);
-  const [isLyricsOpen, setIsLyricsOpen] = useState<boolean>(false);
-  const [isSleepTimerMenuOpen, setIsSleepTimerMenuOpen] = useState<boolean>(false);
-  const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState<boolean>(false);
-  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const current = player.current;
   const isPlaying = player.isPlaying;
-  const hasLiked = current ? likedTrackIds.has(current.id) : false;
 
   const queue = player.queue && player.queue.length > 0 ? player.queue : [];
   const currentIdx = queue.findIndex((t) => t.id === current?.id);
@@ -54,6 +43,12 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
     currentIdx !== -1 && currentIdx < queue.length - 1
       ? queue.slice(currentIdx + 1, currentIdx + 4)
       : queue.filter((t) => t.id !== current?.id).slice(0, 3);
+
+  // Waveform bars data (36 bars with natural variation)
+  const barHeights = [
+    20, 35, 60, 45, 80, 95, 70, 50, 85, 100, 75, 40, 65, 90, 80, 55, 70, 95,
+    60, 85, 100, 70, 45, 80, 90, 65, 40, 75, 85, 60, 45, 70, 80, 50, 30, 20,
+  ];
 
   // Frequency visualizer loop
   useEffect(() => {
@@ -63,8 +58,9 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
         const raw = audioEngine.getFrequencyData();
         if (raw && raw.length > 0) {
           const sample = Array.from(raw.slice(0, 36)).map((v, i) => {
-            const boost = (v / 255) * 60;
-            return Math.min(100, Math.max(15, 20 + boost));
+            const base = barHeights[i] || 40;
+            const boost = (v / 255) * 55;
+            return Math.min(100, Math.max(15, base * 0.45 + boost));
           });
           setFreqBars(sample);
         }
@@ -75,614 +71,488 @@ export default function Turntable({ onExpandToggle, isExpanded }: TurntableProps
     return () => cancelAnimationFrame(animId);
   }, [isPlaying]);
 
+  // Update like count based on current track
+  useEffect(() => {
+    if (current && 'likes' in current && typeof (current as any).likes === 'number') {
+      setLikesCount((current as any).likes);
+    } else {
+      setLikesCount(392);
+    }
+    if (current) {
+      setHasLiked(likedTrackIds.has(current.id));
+    }
+  }, [current, likedTrackIds]);
+
   const handleLikeToggle = () => {
     if (!current) return;
     toggleLike(current as any);
+    if (!hasLiked) {
+      setLikesCount((prev) => prev + 1);
+      setHasLiked(true);
+    } else {
+      setLikesCount((prev) => Math.max(0, prev - 1));
+      setHasLiked(false);
+    }
   };
 
   const handleSpeedToggle = (newRpm: 33 | 45) => {
     setRpm(newRpm);
     const baseRate = newRpm === 45 ? 1.35 : 1.0;
-    const pitchFactor = 1 + pitchOffset / 100;
-    audioEngine.setPlaybackRate(baseRate * pitchFactor);
+    const combinedRate = baseRate * (1 + pitchOffset / 100);
+    audioEngine.setPlaybackRate(combinedRate);
   };
 
-  const handlePitchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    setPitchOffset(val);
+  const handlePitchClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const ratio = Math.max(0, Math.min(1, clickY / rect.height));
+    // Top is +8%, bottom is -8%
+    const newPitch = Math.round((0.5 - ratio) * 16);
+    setPitchOffset(newPitch);
     const baseRate = rpm === 45 ? 1.35 : 1.0;
-    const pitchFactor = 1 + val / 100;
-    audioEngine.setPlaybackRate(baseRate * pitchFactor);
+    const combinedRate = baseRate * (1 + newPitch / 100);
+    audioEngine.setPlaybackRate(combinedRate);
   };
 
-  const handleShareTrack = () => {
-    if (!current) return;
-    try {
-      const url = `${window.location.origin}/#${current.id}`;
-      navigator.clipboard.writeText(url);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2500);
-    } catch (e) {}
-  };
-
-  const handleScratchStart = () => {
-    if (!current) return;
-    setIsScratching(true);
-    audioEngine.setPlaybackRate(0.3);
-  };
-
-  const handleScratchEnd = () => {
-    if (!current) return;
-    setIsScratching(false);
-    const baseRate = rpm === 45 ? 1.35 : 1.0;
-    audioEngine.setPlaybackRate(baseRate * (1 + pitchOffset / 100));
+  const handleMuteToggle = () => {
+    if (isMuted) {
+      audioEngine.setVolume(player.volume || 0.8);
+      setIsMuted(false);
+    } else {
+      audioEngine.setVolume(0);
+      setIsMuted(true);
+    }
   };
 
   const formatTime = (secs: number) => {
-    if (!secs || isNaN(secs) || secs < 0) return '0:00';
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
+  const currentDuration = player.duration || (current?.duration ?? 215);
+  const currentProgress = Math.min(player.progress, currentDuration);
+  const progressPercent = currentDuration > 0 ? (currentProgress / currentDuration) * 100 : 0;
+
+  // Handle clicking on waveform to seek
   const handleWaveformClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!current || !player.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-    player.seek(ratio * player.duration);
+    const targetSeconds = Math.floor(ratio * currentDuration);
+    player.seek(targetSeconds);
+    if (!isPlaying) {
+      player.play();
+    }
   };
 
-  const handleWaveformHover = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!current || !player.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const hoverX = e.clientX - rect.left;
-    const ratio = Math.max(0, Math.min(1, hoverX / rect.width));
-    setHoverTime(formatTime(ratio * player.duration));
+  const togglePlayback = () => {
+    if (isPlaying) {
+      player.pause();
+    } else {
+      player.play();
+    }
   };
 
-  const currentDuration = player.duration || current?.duration || 0;
-  const progressRatio = currentDuration > 0 ? (player.progress / currentDuration) * 100 : 0;
+  // Vinyl animation speed based on RPM
+  const spinDuration = rpm === 45 ? '2.3s' : '3.2s';
+
+  // Calculate rotary knob angle based on volume: -135deg (0%) to +135deg (100%)
+  const dialAngle = isMuted ? -135 : Math.round(((player.volume ?? 0.8) * 270) - 135);
+
+  const handleDialClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    handleMuteToggle();
+  };
+
+  const handleDialWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.05 : -0.05;
+    const newVol = Math.max(0, Math.min(1, (player.volume ?? 0.8) + delta));
+    player.setVolume(newVol);
+    setIsMuted(newVol === 0);
+  };
 
   return (
-    <div className={`turntableHardwareCard ${isExpanded ? 'expandedMode' : ''}`}>
-      {/* Plinth Chrome Header */}
-      <div className="turntableHeader">
-        <div className="turntableBrand">
-          <span className="brandDot" />
-          <span className="brandModel">SONIQUE HI-FI DIRECT DRIVE</span>
-          <span className="brandSub">AUDIOPHILE TURNTABLE</span>
-        </div>
+    <div className={`turntableContainer ${isExpanded ? 'expanded' : ''}`}>
+      {/* Metallic Turntable Chassis */}
+      <div className="turntableChassis">
+        {/* 4 Corner Hardware Screws */}
+        <div className="cornerScrew tl" title="Hardware chassis rivet" />
+        <div className="cornerScrew tr" title="Hardware chassis rivet" />
+        <div className="cornerScrew bl" title="Hardware chassis rivet" />
+        <div className="cornerScrew br" title="Hardware chassis rivet" />
 
-        <div className="turntableHeaderActions">
-          <div className="hardwareSwitchGroup" role="group" aria-label="RPM Speed Switch">
-            <button
-              className={`hardwareSwitchBtn ${rpm === 33 ? 'active' : ''}`}
-              onClick={() => handleSpeedToggle(33)}
-              aria-label="33 RPM"
-            >
-              33
-            </button>
-            <button
-              className={`hardwareSwitchBtn ${rpm === 45 ? 'active' : ''}`}
-              onClick={() => handleSpeedToggle(45)}
-              aria-label="45 RPM"
-            >
-              45
-            </button>
+        {/* Vintage Turntable Controls on Chassis (matching user photo) */}
+        <div className="chassisControls">
+          {/* Rotary Volume / Gain Knob */}
+          <div
+            className={`chassisDial top ${isMuted ? 'muted' : ''}`}
+            onClick={handleDialClick}
+            onWheel={handleDialWheel}
+            title={`Volume: ${isMuted ? 'Muted' : `${Math.round((player.volume ?? 0.8) * 100)}%`} (Click to Mute, Scroll to adjust)`}
+          >
+            <div className="dialNotch" style={{ transform: `rotate(${dialAngle}deg)` }} />
           </div>
 
-          {onExpandToggle && (
-            <button
-              className="expandButton"
-              onClick={onExpandToggle}
-              aria-label={isExpanded ? 'Minimize player' : 'Expand player'}
-              title={isExpanded ? 'Minimize Player' : 'Expand Player'}
+          {/* 33 • 45 RPM Speed Selector */}
+          <div
+            className="speedPill"
+            title={`Speed: ${rpm} RPM (Click 33 or 45 to switch)`}
+          >
+            <span
+              className={`speedLabel ${rpm === 33 ? 'active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); handleSpeedToggle(33); }}
             >
-              {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-            </button>
-          )}
+              33
+            </span>
+            <span
+              className={`speedDot ${rpm === 45 ? 'dotRight' : 'dotLeft'}`}
+              onClick={(e) => { e.stopPropagation(); handleSpeedToggle(rpm === 33 ? 45 : 33); }}
+            />
+            <span
+              className={`speedLabel ${rpm === 45 ? 'active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); handleSpeedToggle(45); }}
+            >
+              45
+            </span>
+          </div>
+
+          {/* PITCH Tempo / Speed Fader */}
+          <div
+            className="pitchSliderWrap"
+            title={`Pitch: ${pitchOffset > 0 ? `+${pitchOffset}` : pitchOffset}% (Click/drag to adjust, double-click to reset 0%)`}
+          >
+            <div
+              className="pitchTrack"
+              onClick={handlePitchClick}
+              onDoubleClick={() => {
+                setPitchOffset(0);
+                audioEngine.setPlaybackRate(rpm === 45 ? 1.35 : 1.0);
+              }}
+            >
+              <div
+                className="pitchThumb"
+                style={{ top: `${Math.round(50 - (pitchOffset / 8) * 45)}%` }}
+              />
+            </div>
+            <span className="pitchLabel">PITCH</span>
+            {/* Matching screw below PITCH */}
+            <div className="chassisScrewSmall" title="Hardware chassis rivet" />
+          </div>
+        </div>
+
+        {/* Recessed Platter Basin */}
+        <div className="platterBasin">
+          {/* Stroboscope Rim */}
+          <div className="strobeRim" />
+
+          {/* Vinyl Record */}
+          <div
+            className={`vinylRecord ${isPlaying ? 'spinning' : 'paused'} ${isScratching ? 'scratching' : ''}`}
+            style={{ animationDuration: spinDuration }}
+            onClick={() => {
+              setIsScratching(true);
+              setTimeout(() => setIsScratching(false), 200);
+              togglePlayback();
+            }}
+            title="Click vinyl to Play / Pause"
+          >
+            {/* Concentric Grooves */}
+            <div className="vinylGroove groove1" />
+            <div className="vinylGroove groove2" />
+            <div className="vinylGroove groove3" />
+            <div className="vinylGroove groove4" />
+            <div className="vinylGroove groove5" />
+
+            {/* Specular Radial Shine Overlay */}
+            <div className="vinylSheen" />
+
+            {/* Center Label featuring uploaded Sonique logo badge */}
+            <div className="vinylCenterLabel">
+              <img
+                src={soniqueLogo}
+                alt="Sonique Logo"
+                className="vinylCenterLogoImg"
+              />
+              <div className="labelSpeedText">{rpm === 45 ? '45 RPM' : '33⅓ RPM'}</div>
+              <div className="spindleHole" />
+            </div>
+          </div>
+        </div>
+
+        {/* Tonearm Assembly */}
+        <div className={`tonearmAssembly ${isPlaying ? 'onRecord' : 'atRest'}`}>
+          {/* Base Pivot */}
+          <div className="tonearmPivot">
+            <div className="pivotRing" />
+            <div className="counterweight" />
+          </div>
+
+          {/* S-Shaped Tone Arm Rod */}
+          <div className="tonearmArm">
+            {/* Headshell & Needle Cartridge (Perforated Silver Technics DJ Headshell) */}
+            <div className="cartridgeHead">
+              <svg
+                viewBox="0 0 54 84"
+                width="30"
+                height="48"
+                className="technicsHeadshellSvg"
+                style={{ overflow: 'visible' }}
+              >
+                <defs>
+                  {/* Chrome Collar Gradient */}
+                  <linearGradient id="collarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#444850" />
+                    <stop offset="25%" stopColor="#d8dde6" />
+                    <stop offset="50%" stopColor="#ffffff" />
+                    <stop offset="75%" stopColor="#a4abb8" />
+                    <stop offset="100%" stopColor="#32363e" />
+                  </linearGradient>
+
+                  {/* Brushed Silver Headshell Body Gradient */}
+                  <linearGradient id="headshellGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="35%" stopColor="#e4e8ef" />
+                    <stop offset="70%" stopColor="#b6bcc8" />
+                    <stop offset="100%" stopColor="#767c88" />
+                  </linearGradient>
+
+                  {/* Cartridge Underside Shadow */}
+                  <linearGradient id="cartridgeBodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#15171a" />
+                    <stop offset="50%" stopColor="#2c3038" />
+                    <stop offset="100%" stopColor="#0f1012" />
+                  </linearGradient>
+
+                  {/* Stylus Needle */}
+                  <linearGradient id="stylusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="40%" stopColor="#ffd700" />
+                    <stop offset="100%" stopColor="#b8860b" />
+                  </linearGradient>
+
+                  {/* Soft Metallic Drop Shadow */}
+                  <filter id="headshellShadow" x="-30%" y="-20%" width="160%" height="160%">
+                    <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" floodColor="#000" floodOpacity="0.45" />
+                  </filter>
+                </defs>
+
+                {/* Dark Cartridge Body underneath */}
+                <rect x="14" y="24" width="18" height="40" rx="3" fill="url(#cartridgeBodyGrad)" filter="url(#headshellShadow)" />
+
+                {/* Diamond Stylus Needle Tip angled onto vinyl */}
+                <path d="M 21 62 L 25 74 L 23 75 L 19 63 Z" fill="url(#stylusGrad)" />
+                <circle cx="24" cy="74" r="1.5" fill="#ffffff" />
+
+                {/* S-Arm Ribbed Connector Collar */}
+                <rect x="15" y="0" width="16" height="13" rx="2" fill="url(#collarGrad)" />
+                <line x1="15" y1="3" x2="31" y2="3" stroke="#222" strokeWidth="1" opacity="0.65" />
+                <line x1="15" y1="6" x2="31" y2="6" stroke="#222" strokeWidth="1" opacity="0.65" />
+                <line x1="15" y1="9" x2="31" y2="9" stroke="#222" strokeWidth="1" opacity="0.65" />
+
+                {/* Curved Metallic Silver Technics Headshell Body */}
+                <path
+                  d="M 12 11
+                     C 12 9, 34 9, 34 11
+                     L 36 46
+                     C 36 53, 30 57, 23 57
+                     C 16 57, 10 53, 10 46
+                     Z"
+                  fill="url(#headshellGrad)"
+                  stroke="#7c828e"
+                  strokeWidth="0.8"
+                  filter="url(#headshellShadow)"
+                />
+
+                {/* Center Ridge Highlight */}
+                <line x1="23" y1="13" x2="23" y2="53" stroke="#ffffff" strokeWidth="1" opacity="0.75" />
+
+                {/* Color-coded Lead Wires peeking through (Red, Green, Blue, White) */}
+                <circle cx="17" cy="21" r="1.8" fill="#e53935" />
+                <circle cx="29" cy="21" r="1.8" fill="#43a047" />
+                <circle cx="17" cy="29" r="1.8" fill="#1e88e5" />
+                <circle cx="29" cy="29" r="1.8" fill="#ffffff" stroke="#888" strokeWidth="0.5" />
+
+                {/* Perforation Grill Holes (Technics DJ signature holes) */}
+                <rect x="15" y="19" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+                <rect x="15" y="27" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+                <rect x="15" y="35" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+
+                <rect x="27" y="19" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+                <rect x="27" y="27" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+                <rect x="27" y="35" width="4" height="4.5" rx="1" fill="#111" stroke="#555" strokeWidth="0.6" />
+
+                {/* Front Weight Slot Cutout */}
+                <rect x="18" y="43" width="10" height="4" rx="2" fill="#181a1e" stroke="#4a4f58" strokeWidth="0.6" />
+
+                {/* Chrome Finger Lift Handle (Curving right) */}
+                <path
+                  d="M 33 30
+                     C 40 30, 47 28, 47 22
+                     C 47 18, 42 18, 40 22"
+                  fill="none"
+                  stroke="url(#collarGrad)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  filter="url(#headshellShadow)"
+                />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Main Turntable Deck Area */}
-      <div className="turntableDeck">
-        {/* Vinyl Assembly Unit */}
-        <div
-          className={`vinylAssemblyUnit ${isScratching ? 'scratching' : ''}`}
-          onMouseDown={handleScratchStart}
-          onMouseUp={handleScratchEnd}
-          onMouseLeave={handleScratchEnd}
-          onTouchStart={handleScratchStart}
-          onTouchEnd={handleScratchEnd}
-          title={current ? (isPlaying ? 'Hold or drag to scratch' : 'Click play to start') : 'Select a track'}
-        >
-          {/* Strobe Rim */}
-          <div className={`strobeRimPattern ${isPlaying ? 'strobeActive' : ''}`} />
-
-          {/* Heavy Acrylic / Rubber Slipmat Platter */}
-          <div className={`turntablePlatterMat ${isPlaying ? 'spinning' : ''}`}>
-            {/* Vinyl 12" LP Record */}
-            <div className="vinylRecord">
-              <div className="vinylGrooveSheen" />
-              <div className="vinylGrooveRing outer" />
-              <div className="vinylGrooveRing mid" />
-              <div className="vinylGrooveRing inner" />
-
-              {/* Center Vinyl Label */}
-              <div className="vinylCenterLabel">
-                {current && (current.coverUrl || (current as any).art) ? (
-                  <img
-                    src={current.coverUrl || (current as any).art}
-                    alt={current.title}
-                    className="labelArtwork"
-                  />
-                ) : (
-                  <div className="labelArtworkPlaceholder">
-                    <img src={soniqueLogo} alt="Sonique" className="labelArtwork" />
-                  </div>
-                )}
-                {/* Spindle Cap */}
-                <div className="turntableSpindle">
-                  <div className="spindleCenterBrass" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Realistic High-Fidelity Technics DJ Tonearm with Perforated Headshell */}
-          <div className={`tonearmAssembly ${isPlaying && current ? 'needleOnRecord' : 'needleParked'}`}>
-            <div className="tonearmPivotBase">
-              <div className="pivotGimbalRing" />
-              <div className="counterweightDial" />
-              <div className="antiskateDialKnob" />
-            </div>
-
-            {/* S-Shaped ToneArm Metal Tube */}
-            <div className="tonearmTube">
-              {/* Cueing Arm Rest Hook */}
-              <div className="tonearmRestHook" />
-
-              {/* Technics-style Perforated Headshell & Cartridge */}
-              <div className="perforatedHeadshell">
-                <svg
-                  width="38"
-                  height="72"
-                  viewBox="0 0 38 72"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="headshellSvg"
-                >
-                  {/* Headshell Connector Collar */}
-                  <rect x="15" y="0" width="8" height="6" rx="1.5" fill="#3a3a3a" stroke="#111" strokeWidth="1" />
-                  <rect x="16" y="2" width="6" height="2" fill="#d4af37" />
-
-                  {/* Main Perforated Shell Body */}
-                  <path
-                    d="M14 6 L24 6 L26 14 L28 42 L25 50 L13 50 L10 42 L12 14 Z"
-                    fill="url(#metalGrad)"
-                    stroke="#111"
-                    strokeWidth="1.2"
-                  />
-
-                  {/* Finger Lift Handle */}
-                  <path
-                    d="M26 22 C32 20, 36 24, 36 30 C36 34, 33 36, 30 35"
-                    stroke="#222"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-
-                  {/* Ventilation / Weight-Reduction Holes */}
-                  <circle cx="15.5" cy="20" r="2" fill="#111" />
-                  <circle cx="22.5" cy="20" r="2" fill="#111" />
-                  <circle cx="15.5" cy="28" r="2" fill="#111" />
-                  <circle cx="22.5" cy="28" r="2" fill="#111" />
-                  <circle cx="15.5" cy="36" r="2" fill="#111" />
-                  <circle cx="22.5" cy="36" r="2" fill="#111" />
-
-                  {/* Cartridge Body */}
-                  <rect x="13" y="50" width="12" height="15" rx="1" fill="#1a1a1a" stroke="#000" strokeWidth="1" />
-                  <rect x="15" y="52" width="8" height="7" fill="#dc2626" rx="0.5" />
-                  <line x1="19" y1="52" x2="19" y2="59" stroke="#fff" strokeWidth="1" />
-
-                  {/* Stylus / Cantilever & Diamond Tip */}
-                  <line x1="19" y1="65" x2="19" y2="70" stroke="#888" strokeWidth="1.2" />
-                  <polygon points="17.5,70 20.5,70 19,72" fill="#fff" stroke="#666" strokeWidth="0.5" />
-
-                  {/* Gradient Definition */}
-                  <defs>
-                    <linearGradient id="metalGrad" x1="10" y1="6" x2="28" y2="50" gradientUnits="userSpaceOnUse">
-                      <stop offset="0%" stopColor="#d1d5db" />
-                      <stop offset="35%" stopColor="#f3f4f6" />
-                      <stop offset="70%" stopColor="#9ca3af" />
-                      <stop offset="100%" stopColor="#4b5563" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-
-                {/* Micro Stylus LED Light Beam */}
-                {isPlaying && current && <div className="stylusGrooveGlow" />}
-              </div>
-            </div>
-          </div>
+      {/* Track Meta & Social Badge */}
+      <div className="trackInfoSection">
+        <div className="trackMainRow">
+          <h1 className="trackTitlePixel" title={current?.title || 'The Suffering'}>
+            {current?.title || 'The Suffering'}
+          </h1>
+          <button
+            className={`likeCountBadge ${hasLiked ? 'liked' : ''}`}
+            onClick={handleLikeToggle}
+            title={hasLiked ? 'Unlike track' : 'Like track'}
+          >
+            <MessageSquare size={16} fill={hasLiked ? '#000' : 'none'} color="#000" />
+            <span className="likeNumber">+ {likesCount}</span>
+          </button>
         </div>
 
-        {/* Pitch Slider on Right Side */}
-        <div className="pitchControlArea">
-          <div className="pitchScaleLabels">
-            <span>+8%</span>
-            <span>0</span>
-            <span>-8%</span>
-          </div>
-          <input
-            type="range"
-            min="-8"
-            max="8"
-            step="0.5"
-            value={pitchOffset}
-            onChange={handlePitchChange}
-            className="pitchSliderInput"
-            aria-label="Pitch Adjust Slider"
-            {...({ orient: 'vertical' } as any)}
-          />
-          <span className="pitchValueDisplay">
-            {pitchOffset > 0 ? `+${pitchOffset}%` : `${pitchOffset}%`}
+        {/* Genre Pill Tag */}
+        <div className="genrePillRow">
+          <span className="genrePillBlack">
+            {((current as any)?.genre) || ((current as any)?.badge) || 'Classic'}
           </span>
         </div>
       </div>
 
-      {/* Track Info Display Bar */}
-      <div className="turntableInfoBar">
-        <div className="trackIdentityColumn">
-          {current ? (
-            <>
-              <div className="trackMetaBadges">
-                <span className="grooveBadge">
-                  {isPlaying ? 'PLAYING ON VINYL' : 'PAUSED'}
-                </span>
-                {(current as any).genre && (
-                  <span className="genreBadge">{(current as any).genre}</span>
-                )}
-                {(current as any).album && (
-                  <span className="albumBadge">{(current as any).album}</span>
-                )}
-              </div>
-              <h2 className="currentTrackTitle">{current.title}</h2>
-              <p className="currentTrackArtist">{(current as any).artist || (current as any).show?.title || 'Unknown Artist'}</p>
-            </>
-          ) : (
-            <>
-              <div className="trackMetaBadges">
-                <span className="grooveBadge idle">DECK IDLE</span>
-              </div>
-              <h2 className="currentTrackTitle">No Track Selected</h2>
-              <p className="currentTrackArtist">Choose a song to start listening</p>
-            </>
-          )}
+      {/* Waveform Visualizer & Time Codes */}
+      <div className="waveformContainer">
+        <span className="timePixel current">{formatTime(currentProgress)}</span>
+
+        <div
+          className="waveformBars"
+          onClick={handleWaveformClick}
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            setHoverTime(formatTime(Math.floor(ratio * currentDuration)));
+          }}
+          onMouseLeave={() => setHoverTime(null)}
+          title={hoverTime ? `Seek to ${hoverTime}` : 'Click to seek'}
+        >
+          {barHeights.map((h, index) => {
+            const barPercent = (index / barHeights.length) * 100;
+            const isPlayed = barPercent <= progressPercent;
+            // Real audio frequency reactive height or fallback waveform bounce
+            const realHeight = freqBars[index] !== undefined && isPlaying
+              ? freqBars[index]
+              : isPlaying
+              ? Math.min(100, Math.max(15, h + Math.sin((index + player.progress * 4) * 0.5) * 18))
+              : h;
+
+            return (
+              <div
+                key={index}
+                className={`waveBar ${isPlayed ? 'played' : 'unplayed'} ${isPlaying ? 'animated' : ''}`}
+                style={{
+                  height: `${realHeight}%`,
+                }}
+              />
+            );
+          })}
         </div>
 
-        <div className="trackActionColumn">
-          <button
-            className={`turntableLikeBtn ${hasLiked ? 'liked' : ''}`}
-            onClick={handleLikeToggle}
-            disabled={!current}
-            aria-label={hasLiked ? 'Unlike song' : 'Like song'}
-            title={hasLiked ? 'Unlike' : 'Like'}
-          >
-            <Heart size={17} fill={hasLiked ? '#000' : 'none'} color="#000" />
-          </button>
-
-          <button
-            className={`turntableActionIconBtn ${isLyricsOpen ? 'active' : ''}`}
-            onClick={() => setIsLyricsOpen(!isLyricsOpen)}
-            disabled={!current}
-            aria-label="View Lyrics"
-            title="Lyrics"
-          >
-            <Mic2 size={16} />
-          </button>
-
-          <div className="relativeActionWrap">
-            <button
-              className={`turntableActionIconBtn ${player.sleepTimerMinutes ? 'active' : ''}`}
-              onClick={() => setIsSleepTimerMenuOpen(!isSleepTimerMenuOpen)}
-              aria-label="Sleep Timer"
-              title={player.sleepTimerMinutes ? `Sleep timer: ${player.sleepTimerMinutes}m` : 'Set Sleep Timer'}
-            >
-              <Moon size={16} />
-            </button>
-
-            {isSleepTimerMenuOpen && (
-              <div className="retroActionDropdown sleepTimerDropdown">
-                <span className="dropdownTitle">SLEEP TIMER</span>
-                <button
-                  className={`dropdownOption ${player.sleepTimerMinutes === null ? 'selected' : ''}`}
-                  onClick={() => {
-                    player.setSleepTimer(null);
-                    setIsSleepTimerMenuOpen(false);
-                  }}
-                >
-                  Off
-                </button>
-                {[15, 30, 45, 60].map((m) => (
-                  <button
-                    key={m}
-                    className={`dropdownOption ${player.sleepTimerMinutes === m ? 'selected' : ''}`}
-                    onClick={() => {
-                      player.setSleepTimer(m);
-                      setIsSleepTimerMenuOpen(false);
-                    }}
-                  >
-                    {m} minutes
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="relativeActionWrap">
-            <button
-              className="turntableActionIconBtn speedBadgeBtn"
-              onClick={() => setIsSpeedMenuOpen(!isSpeedMenuOpen)}
-              aria-label="Playback Speed"
-              title={`Playback Speed: ${player.playbackSpeed}x`}
-            >
-              <span className="speedBadgeText">{player.playbackSpeed}x</span>
-            </button>
-
-            {isSpeedMenuOpen && (
-              <div className="retroActionDropdown speedDropdown">
-                <span className="dropdownTitle">SPEED</span>
-                {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((spd) => (
-                  <button
-                    key={spd}
-                    className={`dropdownOption ${player.playbackSpeed === spd ? 'selected' : ''}`}
-                    onClick={() => {
-                      player.setPlaybackSpeed(spd);
-                      setIsSpeedMenuOpen(false);
-                    }}
-                  >
-                    {spd}x
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <button
-            className="turntableActionIconBtn"
-            onClick={handleShareTrack}
-            disabled={!current}
-            aria-label="Share Song Link"
-            title={copiedLink ? 'Link Copied!' : 'Share Song Link'}
-          >
-            {copiedLink ? <Check size={16} color="#059669" /> : <Share2 size={16} />}
-          </button>
-        </div>
+        <span className="timePixel total">{formatTime(currentDuration)}</span>
       </div>
 
-      {/* Autoplay Paused by Browser Resume Banner */}
-      {player.isAutoplayBlocked && current && (
-        <div className="turntableAutoplayResumeAlert">
-          <div className="resumeAlertText">
-            <span className="resumePulseDot" />
-            <span>Autoplay paused by browser. Saved at {formatTime(player.progress)}.</span>
-          </div>
-          <button
-            className="turntableResumeBtn"
-            onClick={player.resumeAutoplay}
-            aria-label={`Resume playing at ${formatTime(player.progress)}`}
-          >
-            <Play size={12} fill="#000" color="#000" />
-            <span>RESUME</span>
-          </button>
-        </div>
-      )}
-
-      {/* Rhythmic Frequency Bars & Seekable Waveform */}
-      <div className="waveformContainer">
-        <div
-          className="waveformTimelineTrack"
-          onClick={handleWaveformClick}
-          onMouseMove={handleWaveformHover}
-          onMouseLeave={() => setHoverTime(null)}
-          title="Click to seek"
+      {/* Bottom Transport Controls */}
+      <div className="transportControls">
+        <button
+          className="transportIconBtn"
+          onClick={onExpandToggle}
+          title={isExpanded ? 'Minimize player' : 'Expand player'}
         >
-          <div className="frequencyBarsWrapper">
-            {Array.from({ length: 36 }).map((_, idx) => {
-              const liveHeight = freqBars[idx] || 25;
-              const barPlayed = (idx / 36) * 100 <= progressRatio;
+          {isExpanded ? <Minimize2 size={19} /> : <Maximize2 size={19} />}
+        </button>
+
+        <button
+          className="transportIconBtn"
+          onClick={() => player.previous()}
+          title="Previous Track"
+        >
+          <SkipBack size={21} fill="#000" color="#000" />
+        </button>
+
+        {/* Big Circular Black Play/Pause Button */}
+        <button
+          className="bigPlayButton"
+          onClick={togglePlayback}
+          title={isPlaying ? 'Pause' : 'Play'}
+        >
+          {isPlaying ? (
+            <Pause size={24} fill="#fff" color="#fff" />
+          ) : (
+            <Play size={24} fill="#fff" color="#fff" style={{ marginLeft: 3 }} />
+          )}
+        </button>
+
+        <button
+          className="transportIconBtn"
+          onClick={() => player.next()}
+          title="Next Track"
+        >
+          <SkipForward size={21} fill="#000" color="#000" />
+        </button>
+
+        {/* Shuffle Button with clear visual active state */}
+        <button
+          className={`transportIconBtn ${player.shuffle ? 'active' : ''}`}
+          onClick={player.toggleShuffle}
+          title={player.shuffle ? 'Shuffle: ON' : 'Shuffle: OFF'}
+        >
+          <Shuffle size={19} color={player.shuffle ? '#000' : '#444'} />
+          {player.shuffle && <span className="shuffleActiveDot" />}
+        </button>
+      </div>
+
+      {/* Up Next in Queue mini-panel to cover blank square space under turntable */}
+      {!isExpanded && upNextTracks.length > 0 && (
+        <div className="turntableQueueSection">
+          <div className="turntableQueueHeader">
+            <span className="turntableQueueTitle">
+              <ListMusic size={13} style={{ display: 'inline', verticalAlign: -1, marginRight: 5 }} />
+              Up Next Queue
+            </span>
+            <span className="turntableQueueBadge">
+              {queue.length} in queue
+            </span>
+          </div>
+          <div className="turntableQueueList">
+            {upNextTracks.map((trk) => {
+              const mins = Math.floor((trk.duration || 215) / 60);
+              const secs = ((trk.duration || 215) % 60).toString().padStart(2, '0');
               return (
                 <div
-                  key={idx}
-                  className={`waveformBar ${barPlayed ? 'barPlayed' : ''}`}
-                  style={{
-                    height: isPlaying && current ? `${liveHeight}%` : '20%',
-                  }}
-                />
+                  key={trk.id}
+                  className="turntableQueueItem"
+                  onClick={() => player.selectTrack(trk as any, true)}
+                  title={`Play: ${trk.title} by ${(trk as any).artist || 'Artist'}`}
+                >
+                  <img
+                    src={(trk as any).coverUrl || (trk as any).art || ''}
+                    alt={trk.title}
+                    className="queueItemThumb"
+                  />
+                  <div className="queueItemMeta">
+                    <span className="queueItemTitle">{trk.title}</span>
+                    <span className="queueItemArtist">{(trk as any).artist || (trk as any).showTitle || 'Artist'}</span>
+                  </div>
+                  <span className="queueItemTime">{mins}:{secs}</span>
+                </div>
               );
             })}
-          </div>
-
-          {/* Scrubber Playhead Progress Indicator */}
-          <div
-            className="waveformPlayhead"
-            style={{ left: `${Math.min(100, Math.max(0, progressRatio))}%` }}
-          />
-
-          {hoverTime && (
-            <div className="waveformTooltip" style={{ left: '50%' }}>
-              {hoverTime}
-            </div>
-          )}
-        </div>
-
-        <div className="timeLabelsRow">
-          <span>{formatTime(player.progress)}</span>
-          <span>{formatTime(currentDuration)}</span>
-        </div>
-      </div>
-
-      {/* Hardware Transport Control Bar */}
-      <div className="turntableTransportBar">
-        <div className="transportButtonsGroup">
-          <button
-            className={`circularHardwareBtn ${player.shuffle ? 'active' : ''}`}
-            onClick={player.toggleShuffle}
-            aria-label="Toggle shuffle"
-            title="Shuffle"
-          >
-            <Shuffle size={15} />
-          </button>
-
-          <button
-            className="circularHardwareBtn"
-            onClick={player.previous}
-            aria-label="Previous track"
-            title="Previous"
-            disabled={!current}
-          >
-            <SkipBack size={17} />
-          </button>
-
-          <button
-            className={`circularPlayBtn ${isPlaying ? 'playing' : ''}`}
-            onClick={player.toggle}
-            aria-label={isPlaying ? 'Pause' : 'Play'}
-            title={isPlaying ? 'Pause' : 'Play'}
-            disabled={!current}
-          >
-            {isPlaying ? <Pause size={20} fill="#000" /> : <Play size={20} fill="#000" style={{ marginLeft: 2 }} />}
-          </button>
-
-          <button
-            className="circularHardwareBtn"
-            onClick={player.next}
-            aria-label="Next track"
-            title="Next"
-            disabled={!current}
-          >
-            <SkipForward size={17} />
-          </button>
-
-          <button
-            className={`circularHardwareBtn ${player.repeat !== 'off' ? 'active' : ''}`}
-            onClick={player.cycleRepeat}
-            aria-label="Repeat mode"
-            title={`Repeat: ${player.repeat}`}
-          >
-            <Repeat size={15} />
-            {player.repeat === 'one' && <span className="repeatBadge">1</span>}
-          </button>
-        </div>
-
-        {/* Volume Fader */}
-        <div className="volumeControlGroup">
-          <button
-            className="volMuteBtn"
-            onClick={player.toggleMute}
-            aria-label={player.isMuted ? 'Unmute' : 'Mute'}
-            title={player.isMuted ? 'Unmute' : 'Mute'}
-          >
-            {player.isMuted || player.volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
-          </button>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.02"
-            value={player.isMuted ? 0 : player.volume}
-            onChange={(e) => player.setVolume(parseFloat(e.target.value))}
-            className="volumeSlider"
-            aria-label="Volume slider"
-          />
-        </div>
-      </div>
-
-      {/* Up Next Queue */}
-      <div className="upNextQueueCard">
-        <div className="upNextQueueHeader">
-          <div className="upNextTitleGroup">
-            <ListMusic size={14} className="upNextIcon" />
-            <span className="upNextTitle">UP NEXT IN QUEUE</span>
-          </div>
-          {queue.length > 0 && (
-            <span className="queueCountBadge">{queue.length} Tracks</span>
-          )}
-        </div>
-
-        <div className="upNextList">
-          {upNextTracks.length > 0 ? (
-            upNextTracks.map((trk, i) => (
-              <div
-                key={trk.id || i}
-                className="upNextItem"
-                onClick={() => player.setCurrent(trk, queue)}
-                role="button"
-                tabIndex={0}
-                aria-label={`Play next: ${trk.title} by ${(trk as any).artist || 'Unknown Artist'}`}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    player.setCurrent(trk, queue);
-                  }
-                }}
-              >
-                <div className="upNextCoverWrap">
-                  {trk.coverUrl || (trk as any).art ? (
-                    <img src={trk.coverUrl || (trk as any).art} alt="" className="upNextCover" />
-                  ) : (
-                    <div className="upNextCoverPlaceholder">
-                      <Disc3 size={14} />
-                    </div>
-                  )}
-                </div>
-                <div className="upNextMeta">
-                  <span className="upNextTrackTitle">{trk.title}</span>
-                  <span className="upNextTrackArtist">{(trk as any).artist || (trk as any).show?.title || 'Unknown Artist'}</span>
-                </div>
-                <span className="upNextDuration">
-                  {formatTime(trk.duration || 0)}
-                </span>
-              </div>
-            ))
-          ) : (
-            <div className="upNextEmptyState">
-              <span>Queue is empty — select songs from below to play next</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Lyrics Viewer Modal (Requirement 13) */}
-      {isLyricsOpen && current && (
-        <div className="turntableLyricsOverlay" onClick={() => setIsLyricsOpen(false)}>
-          <div className="turntableLyricsCard" onClick={(e) => e.stopPropagation()}>
-            <div className="lyricsHeader">
-              <div className="lyricsHeaderMeta">
-                <span className="lyricsEyebrow">SONIQUE STUDIO LYRICS</span>
-                <h3 className="lyricsTrackTitle">{current.title}</h3>
-                <span className="lyricsTrackArtist">{(current as any).artist || 'Unknown Artist'}</span>
-              </div>
-              <button
-                className="lyricsCloseBtn"
-                onClick={() => setIsLyricsOpen(false)}
-                aria-label="Close lyrics"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="lyricsBody">
-              {(current as any).lyrics ? (
-                <div className="lyricsTextContent">{(current as any).lyrics}</div>
-              ) : (
-                <div className="lyricsUnavailableState">
-                  <Mic2 size={32} />
-                  <span>Lyrics unavailable for this recording</span>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       )}

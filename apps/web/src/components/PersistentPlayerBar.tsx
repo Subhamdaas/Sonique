@@ -9,8 +9,8 @@ export default function PersistentPlayerBar() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // If on the Home page, the large vinyl turntable is already visible
-  if (location.pathname === '/' || !player.current) {
+  // If on the Home or Music page, the large vinyl turntable is already visible
+  if (location.pathname === '/' || location.pathname === '/music' || !player.current) {
     return null;
   }
 
