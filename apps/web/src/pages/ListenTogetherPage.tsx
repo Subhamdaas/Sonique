@@ -60,10 +60,7 @@ export default function ListenTogetherPage() {
         setCatalogTracks(res.featuredTracks || []);
       }).catch(() => {});
 
-      fetch('http://localhost:4000/api/rooms')
-        .then((res) => res.json())
-        .then(setPublicRooms)
-        .catch(() => {});
+      api.getRooms().then(setPublicRooms).catch(() => {});
     }
   }, [code]);
 
@@ -97,20 +94,17 @@ export default function ListenTogetherPage() {
   const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:4000/api/rooms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: createName.trim() || 'Sonique Vibe Session',
-          genre: createGenre,
-          isPublic: true,
-          hostId: user?.id || 'guest-host',
-          hostName: user?.name || 'Session Host',
-        }),
+      const room = await api.createRoom({
+        name: createName.trim() || 'Sonique Vibe Session',
+        genre: createGenre,
+        isPublic: true,
+        hostId: user?.id || 'guest-host',
+        hostName: user?.name || 'Session Host',
       });
-      const room = await res.json();
       setShowCreateModal(false);
-      navigate(`/room/${room.code}`);
+      if (room && room.code) {
+        navigate(`/room/${room.code}`);
+      }
     } catch (err) {
       console.error(err);
     }

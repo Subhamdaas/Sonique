@@ -3,7 +3,6 @@ import { Search, Mail, Bell, User, X, Play } from 'lucide-react';
 import { initialSongs, RetroSong } from '../data/mockData';
 import { usePlayerStore } from '../store/playerStore';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
 import soniqueLogo from '../assets/sonique-logo.jpg';
 
 interface HeaderBarProps {
@@ -28,35 +27,19 @@ export default function HeaderBar({
 
   // Handle live search
   useEffect(() => {
-    const q = searchQuery.trim();
+    const q = searchQuery.trim().toLowerCase();
     if (!q) {
       setSearchResults([]);
       return;
     }
-    let isCurrent = true;
-    api
-      .search(q)
-      .then((res) => {
-        if (isCurrent) {
-          setSearchResults(res.tracks as any || []);
-        }
-      })
-      .catch(() => {
-        if (isCurrent) {
-          const filtered = initialSongs.filter(
-            (s) =>
-              s.title.toLowerCase().includes(q.toLowerCase()) ||
-              s.artist.toLowerCase().includes(q.toLowerCase()) ||
-              s.genre?.toLowerCase().includes(q.toLowerCase())
-          );
-          setSearchResults(filtered);
-        }
-      });
-
+    const filtered = initialSongs.filter(
+      (s) =>
+        s.title.toLowerCase().includes(q) ||
+        s.artist.toLowerCase().includes(q) ||
+        s.genre?.toLowerCase().includes(q)
+    );
+    setSearchResults(filtered);
     if (onSearchChange) onSearchChange(q);
-    return () => {
-      isCurrent = false;
-    };
   }, [searchQuery, onSearchChange]);
 
   // Click outside to close search dropdown
@@ -71,21 +54,15 @@ export default function HeaderBar({
   }, []);
 
   const handleSelectTrack = (song: RetroSong) => {
-    player.setCurrent(song as any, searchResults.length > 0 ? (searchResults as any) : (initialSongs as any));
+    player.setCurrent(song as any, initialSongs as any);
     setIsSearchFocused(false);
-  };
-
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      setIsSearchFocused(false);
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
+    setSearchQuery('');
   };
 
   return (
     <header className="retroHeaderBar">
       {/* Left Logo */}
-      <div className="retroLogoWrap" onClick={() => navigate('/')} title="Sonique — Music Makes Life Better" role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && navigate('/')}>
+      <div className="retroLogoWrap" onClick={() => navigate('/')} title="Sonique — Music Makes Life Better">
         <img
           src={soniqueLogo}
           alt="Sonique Logo"
@@ -104,12 +81,10 @@ export default function HeaderBar({
           <input
             type="text"
             className="searchInput"
-            placeholder="Search for songs, artists, genres (Press Enter)"
+            placeholder="Search for songs, artists"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
-            onKeyDown={handleInputKeyDown}
-            aria-label="Search music catalog"
           />
           {searchQuery && (
             <button
@@ -118,7 +93,6 @@ export default function HeaderBar({
                 setSearchQuery('');
                 setSearchResults([]);
               }}
-              aria-label="Clear search"
             >
               <X size={15} />
             </button>
@@ -134,15 +108,11 @@ export default function HeaderBar({
             </div>
             {searchResults.length > 0 ? (
               <div className="searchResultsList">
-                {searchResults.slice(0, 5).map((song) => (
+                {searchResults.map((song) => (
                   <div
                     key={song.id}
                     className="searchResultItem"
                     onClick={() => handleSelectTrack(song)}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Play ${song.title}`}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSelectTrack(song)}
                   >
                     <img
                       src={song.coverUrl || ''}
@@ -151,24 +121,13 @@ export default function HeaderBar({
                     />
                     <div className="searchItemMeta">
                       <span className="searchItemTitle">{song.title}</span>
-                      <span className="searchItemArtist">{song.artist} • {song.genre || song.album || 'Catalog'}</span>
+                      <span className="searchItemArtist">{song.artist} • {song.genre}</span>
                     </div>
-                    <button className="searchPlayBtn" title="Play on turntable" aria-label={`Play ${song.title}`}>
+                    <button className="searchPlayBtn" title="Play on turntable">
                       <Play size={14} fill="#000" color="#000" />
                     </button>
                   </div>
                 ))}
-                <div
-                  className="searchDropdownFooter"
-                  onClick={() => {
-                    setIsSearchFocused(false);
-                    navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-                  }}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <span>SEE ALL RESULTS FOR "{searchQuery}" →</span>
-                </div>
               </div>
             ) : (
               <div className="noResultsNotice">No tracks found matching "{searchQuery}"</div>

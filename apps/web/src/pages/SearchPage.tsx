@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import { MediaCard, ArtistCard, PodcastCard, SongRow } from '../components/media';
+import { Search, Play, Pause, Disc3, Mic2, Music, User, Clock, ArrowRight } from 'lucide-react';
 import { usePlayerStore } from '../store/playerStore';
 import { api } from '../services/api';
 import { Album, Artist, Playlist, PodcastShow, Track } from '../types';
@@ -28,6 +27,14 @@ export default function SearchPage() {
   const player = usePlayerStore();
   const navigate = useNavigate();
 
+  // Synchronize URL search params
+  useEffect(() => {
+    const urlQ = searchParams.get('q') || '';
+    if (urlQ !== q) {
+      setQ(urlQ);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (q.trim()) {
@@ -44,7 +51,7 @@ export default function SearchPage() {
       } else {
         setResults({ tracks: [], artists: [], albums: [], playlists: [], podcasts: [] });
       }
-    }, 250);
+    }, 200);
 
     return () => clearTimeout(timer);
   }, [q, filterType]);
@@ -56,51 +63,69 @@ export default function SearchPage() {
     results.playlists.length > 0 ||
     results.podcasts.length > 0;
 
-  // Spotify Browse Genres
+  // Curated Sonique Sound Genres
   const browseCategories = [
-    { title: 'Podcasts', color: '#e13300', img: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=300&q=80' },
-    { title: 'Live Events', color: '#7358ff', img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=300&q=80' },
-    { title: 'Made For You', color: '#1e3264', img: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=300&q=80' },
-    { title: 'New Releases', color: '#e8115b', img: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=300&q=80' },
-    { title: 'Electronic', color: '#503750', img: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=300&q=80' },
-    { title: 'Pop', color: '#148a08', img: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=300&q=80' },
-    { title: 'Indie & Folk', color: '#bc5900', img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80' },
-    { title: 'Chill & Lofi', color: '#d84000', img: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=300&q=80' },
-    { title: 'Rock', color: '#e91429', img: 'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?auto=format&fit=crop&w=300&q=80' },
-    { title: 'Ambient', color: '#8d67ab', img: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=300&q=80' },
+    { title: 'Hindi Hits', tag: 'Hindi', color: '#1a1d24', subtitle: 'Arijit Singh, Pritam & Bollywood' },
+    { title: 'Odia Classics', tag: 'Odia', color: '#14171f', subtitle: 'Rangabati, Folk & Melody' },
+    { title: 'Tollywood Mass', tag: 'Tollywood', color: '#1e2129', subtitle: 'RRR, Pushpa & High Energy' },
+    { title: 'Hollywood Viral', tag: 'Hollywood', color: '#111317', subtitle: 'Starboy, The Weeknd & Pop' },
+    { title: 'Classic Rock', tag: 'Classic', color: '#191b22', subtitle: 'Queen, Oasis & 70s Legends' },
+    { title: 'Electronic & Synth', tag: 'Electronic', color: '#161820', subtitle: 'Daft Punk, Moog & Modular' },
+    { title: 'Jazz on Wax', tag: 'Jazz', color: '#1d1f27', subtitle: 'Miles Davis & Blue Note' },
+    { title: 'Audiophile Podcasts', tag: 'Audiophile', color: '#171921', subtitle: 'Gear, Acoustics & Vinyl' },
   ];
 
+  const formatDuration = (secs: number) => {
+    if (!secs || isNaN(secs) || secs < 0) return '0:00';
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
   return (
-    <div className="pageContent">
-      {/* Search Bar on Page Header */}
-      <div style={{ margin: '16px 0 24px 0', maxWidth: 460 }}>
-        <div className="topbarSearch" style={{ height: 48, background: '#242424' }}>
-          <Search size={20} />
+    <div className="retroDetailPage">
+      {/* Header Search Console */}
+      <div className="retroSectionHeader">
+        <h1 className="retroDetailTitle">Catalog & Music Search</h1>
+        <p className="retroDetailDesc">
+          Search songs, artists, vinyl releases, audio essays, and communal listening sessions.
+        </p>
+      </div>
+
+      {/* Large Search Input */}
+      <div className="searchPillContainer" style={{ maxWidth: 520, margin: '14px 0 20px 0' }}>
+        <div className="searchPillBox focused" style={{ background: '#ffffff', padding: '10px 18px' }}>
+          <Search size={19} className="searchIcon" />
           <input
             type="text"
-            placeholder="What do you want to play?"
+            className="searchInput"
+            placeholder="Search titles, artists, genres, or albums..."
             value={q}
             onChange={(e) => {
-              setQ(e.target.value);
-              setSearchParams(e.target.value ? { q: e.target.value } : {});
+              const val = e.target.value;
+              setQ(val);
+              setSearchParams(val.trim() ? { q: val } : {});
             }}
+            autoFocus
+            aria-label="Search music catalog"
           />
         </div>
       </div>
 
-      {/* Filter Tabs */}
+      {/* Filter Category Pills */}
       {q.trim() && (
-        <div className="filterPillsRow" style={{ padding: '0 0 20px 0' }}>
+        <div className="filterPillsScroll" style={{ marginBottom: 20 }}>
           {[
-            { id: 'all', label: 'All' },
+            { id: 'all', label: 'All Catalog' },
             { id: 'tracks', label: 'Songs' },
             { id: 'artists', label: 'Artists' },
             { id: 'albums', label: 'Albums' },
+            { id: 'playlists', label: 'Playlists' },
             { id: 'podcasts', label: 'Podcasts' },
           ].map((pill) => (
             <button
               key={pill.id}
-              className={`filterPillBtn ${filterType === pill.id ? 'active' : ''}`}
+              className={`catPill ${filterType === pill.id ? 'selected' : 'outline'}`}
               onClick={() => setFilterType(pill.id)}
             >
               {pill.label}
@@ -109,45 +134,38 @@ export default function SearchPage() {
         </div>
       )}
 
-      {loading && <div style={{ padding: 40, color: 'var(--text-subdued)' }}>Searching Spotify catalog...</div>}
+      {loading && <div className="retroLoadingMsg">Searching Sonique catalog...</div>}
 
-      {/* When No Query: Show Spotify Browse All Category Cards */}
+      {/* When No Query: Browse Genres Grid */}
       {!q.trim() && (
         <section>
-          <h2 style={{ fontSize: 24, fontWeight: 700, margin: '20px 0 16px 0' }}>Browse all</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
+          <div className="sectionSubHeader" style={{ margin: '20px 0 14px 0' }}>
+            <h2 className="sectionTitlePixel">EXPLORE GENRES & SOUNDSCAPES</h2>
+          </div>
+          <div className="retroBrowseGrid">
             {browseCategories.map((c, i) => (
               <div
                 key={i}
-                style={{
-                  backgroundColor: c.color,
-                  height: 160,
-                  borderRadius: 8,
-                  padding: 16,
-                  position: 'relative',
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                }}
+                className="retroGenreTile"
                 onClick={() => {
-                  setQ(c.title);
-                  setSearchParams({ q: c.title });
+                  setQ(c.tag);
+                  setSearchParams({ q: c.tag });
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Explore ${c.title}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setQ(c.tag);
+                    setSearchParams({ q: c.tag });
+                  }
                 }}
               >
-                <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#fff' }}>{c.title}</h3>
-                <img
-                  src={c.img}
-                  alt={c.title}
-                  style={{
-                    position: 'absolute',
-                    width: 90,
-                    height: 90,
-                    right: -10,
-                    bottom: -10,
-                    transform: 'rotate(25deg)',
-                    borderRadius: 4,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-                  }}
-                />
+                <div>
+                  <span className="retroGenreTitle">{c.title}</span>
+                  <p style={{ fontSize: 11, color: '#666', marginTop: 4 }}>{c.subtitle}</p>
+                </div>
+                <span className="retroGenreAction">LISTEN →</span>
               </div>
             ))}
           </div>
@@ -156,54 +174,95 @@ export default function SearchPage() {
 
       {/* When Query is Entered */}
       {q.trim() && hasResults && (
-        <>
-          {/* Top Result + Songs */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: 24, marginBottom: 32 }}>
-            {results.tracks.length > 0 && (
-              <div>
-                <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 16px 0' }}>Top result</h2>
-                <div
-                  style={{
-                    background: 'var(--bg-card)',
-                    padding: 20,
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    position: 'relative',
-                  }}
-                  onClick={() => player.setCurrent(results.tracks[0], results.tracks)}
-                >
-                  <img
-                    src={results.tracks[0].coverUrl || 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=300&q=80'}
-                    style={{ width: 92, height: 92, borderRadius: 6, marginBottom: 16, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}
-                    alt=""
-                  />
-                  <h3 style={{ fontSize: 28, fontWeight: 800, margin: '0 0 6px 0' }}>{results.tracks[0].title}</h3>
-                  <div style={{ fontSize: 14, color: 'var(--text-subdued)' }}>
-                    <span>Song</span> • <strong style={{ color: 'var(--text-bright)' }}>{results.tracks[0].artist}</strong>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+          {/* Top Result + Track Hits */}
+          {results.tracks.length > 0 && (
+            <section>
+              <div className="sectionSubHeader">
+                <h2 className="sectionTitlePixel">TRACK RESULTS ({results.tracks.length})</h2>
+              </div>
+
+              <div className="retroTable" style={{ background: '#ffffff', border: '1.5px solid #000', borderRadius: 14 }}>
+                <div className="retroTableHeader">
+                  <div className="colNum">#</div>
+                  <div className="colTitle">TITLE & ARTIST</div>
+                  <div className="colAlbum">ALBUM</div>
+                  <div className="colDuration">
+                    <Clock size={14} />
                   </div>
                 </div>
-              </div>
-            )}
 
-            {results.tracks.length > 0 && (
-              <div>
-                <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 16px 0' }}>Songs</h2>
-                <div className="spotifyTable">
-                  {results.tracks.slice(0, 4).map((s, i) => (
-                    <SongRow key={s.id} song={s} index={i} onPlay={() => player.setCurrent(s, results.tracks)} />
-                  ))}
-                </div>
+                {results.tracks.map((song, idx) => {
+                  const isCurrent = player.current?.id === song.id;
+                  const isPlaying = isCurrent && player.isPlaying;
+
+                  return (
+                    <div
+                      key={song.id}
+                      className={`retroTableRow ${isCurrent ? 'activeRow' : ''}`}
+                      onClick={() => player.setCurrent(song, results.tracks)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Play ${song.title}`}
+                      onKeyDown={(e) => e.key === 'Enter' && player.setCurrent(song, results.tracks)}
+                    >
+                      <div className="tdCol idx">
+                        {isPlaying ? (
+                          <span style={{ fontWeight: 800 }}>▶</span>
+                        ) : (
+                          <span>{idx + 1}</span>
+                        )}
+                      </div>
+                      <div className="tdCol title">
+                        {song.coverUrl ? (
+                          <img src={song.coverUrl} alt="" className="tableRowThumb" />
+                        ) : (
+                          <div className="tableRowThumb placeholder">
+                            <Music size={14} />
+                          </div>
+                        )}
+                        <div className="tableTitleGroup">
+                          <span className="tableSongTitlePixel">{song.title}</span>
+                          <span className="tableSongArtistPixel">{song.artist}</span>
+                        </div>
+                      </div>
+                      <div className="tdCol album">{song.album || song.genre || 'Single'}</div>
+                      <div className="tdCol time">{formatDuration(song.duration || 215)}</div>
+                    </div>
+                  );
+                })}
               </div>
-            )}
-          </div>
+            </section>
+          )}
 
           {/* Artists */}
           {results.artists.length > 0 && (
-            <section style={{ marginBottom: 32 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 16px 0' }}>Artists</h2>
-              <div className="cardGrid">
-                {results.artists.slice(0, 5).map((a) => (
-                  <ArtistCard key={a.id} artist={a} />
+            <section>
+              <div className="sectionSubHeader">
+                <h2 className="sectionTitlePixel">ARTISTS ({results.artists.length})</h2>
+              </div>
+              <div className="cardsCarouselWrap">
+                {results.artists.map((a) => (
+                  <div
+                    key={a.id}
+                    className="albumCardItem"
+                    onClick={() => navigate(`/artist/${a.id}`)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View artist ${a.name}`}
+                  >
+                    <div className="cardImageWrap">
+                      <img
+                        src={a.imageUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80'}
+                        alt={a.name}
+                        className="cardMonochromeImg"
+                      />
+                    </div>
+                    <div className="cardMeta">
+                      <h3 className="cardTitlePixel">{a.name}</h3>
+                      <p className="cardArtistText">Artist</p>
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>
@@ -211,30 +270,82 @@ export default function SearchPage() {
 
           {/* Albums */}
           {results.albums.length > 0 && (
-            <section style={{ marginBottom: 32 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 16px 0' }}>Albums</h2>
-              <div className="cardGrid">
-                {results.albums.slice(0, 5).map((al) => (
-                  <div className="mediaCard" key={al.id} onClick={() => navigate(`/album/${al.id}`)}>
-                    <div className="artWrap">
-                      <img src={al.coverUrl || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=300&q=80'} alt={al.title} />
+            <section>
+              <div className="sectionSubHeader">
+                <h2 className="sectionTitlePixel">ALBUMS ({results.albums.length})</h2>
+              </div>
+              <div className="cardsCarouselWrap">
+                {results.albums.map((al) => (
+                  <div
+                    key={al.id}
+                    className="albumCardItem"
+                    onClick={() => navigate(`/album/${al.id}`)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View album ${al.title}`}
+                  >
+                    <div className="cardImageWrap">
+                      <img
+                        src={al.coverUrl || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80'}
+                        alt={al.title}
+                        className="cardMonochromeImg"
+                      />
                     </div>
-                    <div className="cardTitle">{al.title}</div>
-                    <div className="cardSubtitle">{al.artist?.name || 'Artist'} • {al.releaseYear || 2026}</div>
+                    <div className="cardMeta">
+                      <h3 className="cardTitlePixel">{al.title}</h3>
+                      <p className="cardArtistText">{al.artist?.name || 'Artist'}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </section>
           )}
-        </>
+
+          {/* Podcasts */}
+          {results.podcasts.length > 0 && (
+            <section>
+              <div className="sectionSubHeader">
+                <h2 className="sectionTitlePixel">PODCASTS ({results.podcasts.length})</h2>
+              </div>
+              <div className="cardsCarouselWrap">
+                {results.podcasts.map((pod) => (
+                  <div
+                    key={pod.id}
+                    className="albumCardItem"
+                    onClick={() => navigate(`/podcast/${pod.id}`)}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View podcast ${pod.title}`}
+                  >
+                    <div className="cardImageWrap">
+                      <img
+                        src={pod.coverUrl || 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=600&q=80'}
+                        alt={pod.title}
+                        className="cardMonochromeImg"
+                      />
+                    </div>
+                    <div className="cardMeta">
+                      <h3 className="cardTitlePixel">{pod.title}</h3>
+                      <p className="cardArtistText">By {pod.author}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       )}
 
       {q.trim() && !loading && !hasResults && (
-        <div style={{ padding: '60px 0', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 24, fontWeight: 700 }}>No results found for “{q}”</h2>
-          <p style={{ color: 'var(--text-subdued)' }}>Please make sure your words are spelled correctly, or use fewer keywords.</p>
+        <div className="retroEmptyStateContainer">
+          <h2>No results found for “{q}”</h2>
+          <p>Try searching for artists like Arijit Singh, Daft Punk, Queen, or genres like Hindi, Odia, Rock, or Classic.</p>
+          <button className="retroBlackBtn" onClick={() => setQ('')}>
+            View All Genres
+          </button>
         </div>
       )}
     </div>
   );
 }
+

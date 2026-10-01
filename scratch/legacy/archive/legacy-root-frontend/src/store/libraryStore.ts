@@ -27,15 +27,15 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const [liked, playlists] = await Promise.all([
-        api.getLikedTracks().catch(() => [] as Track[]),
-        api.getMyPlaylists().catch(() => [] as Playlist[]),
+        api.getLikedTracks().catch(() => []),
+        api.getMyPlaylists().catch(() => []),
       ]);
 
-      const idSet = new Set<string>((liked as Track[]).map((t: Track) => t.id));
+      const idSet = new Set(liked.map((t) => t.id));
       set({
-        likedTracks: liked as Track[],
+        likedTracks: liked,
         likedTrackIds: idSet,
-        myPlaylists: playlists as Playlist[],
+        myPlaylists: playlists,
         isLoading: false,
       });
     } catch (err: any) {

@@ -422,7 +422,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
           const { queue, current } = get();
           const existingIds = new Set(queue.map((t) => t.id));
           if (current) existingIds.add(current.id);
-          const filtered = similar.filter((t) => !existingIds.has(t.id));
+          const filtered = similar.filter((t: any) => !existingIds.has(t.id));
           set({ smartQueueTracks: filtered });
         }
       } catch (e) {}
