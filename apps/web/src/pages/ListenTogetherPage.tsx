@@ -16,6 +16,7 @@ import {
   Heart,
   Smile,
   Disc,
+  Disc3,
 } from 'lucide-react';
 import { Button, Card, SectionHeader } from '../components/ui';
 import { useRoomStore } from '../store/roomStore';
@@ -138,216 +139,240 @@ export default function ListenTogetherPage() {
   // -------------------------------------------------------------
   // LOBBY VIEW (Browse & Join Rooms)
   // -------------------------------------------------------------
+  // -------------------------------------------------------------
+  // LOBBY VIEW (Browse & Join Rooms)
+  // -------------------------------------------------------------
   if (!code || !activeRoom) {
     return (
-      <div className="listenTogetherLobby">
-        <div className="hero" style={{ background: 'linear-gradient(135deg, #101626 0%, #0d111a 100%)' }}>
-          <div className="heroCopy">
-            <div className="eyebrow">
-              <span className="liveDot" /> REAL-TIME WEBSOCKET ROOMS
+      <div className="retroLivePage">
+        {/* Header & Switcher */}
+        <div className="livePageHeader">
+          <div className="liveHeaderLeft">
+            <div className="pageHeaderBadge liveBadgeRed">
+              <span className="liveBlinkDot" />
+              <span>LIVE AUDIO BROADCASTS</span>
             </div>
-            <h1>
-              Listen <em>together</em> in sync.
-            </h1>
-            <p>
-              Join collaborative listening rooms, share a live queue, chat with friends, and experience music in real-time.
+            <h1 className="liveMainHeading">Live Sessions & Communal Rooms</h1>
+            <p className="liveSubtitle">
+              Synchronized vinyl playback lounges, live DJ sets, and communal audiophile listening.
             </p>
-            <div className="heroActions">
-              <Button onClick={() => setShowCreateModal(true)}>
-                <Plus size={16} /> Create a Room
-              </Button>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <input
-                  type="text"
-                  placeholder="Enter 8-digit Room Code"
-                  value={joinCodeInput}
-                  onChange={(e) => setJoinCodeInput(e.target.value.toUpperCase())}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid var(--line)',
-                    color: '#fff',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
-                    fontSize: '13px',
-                  }}
-                />
-                <Button
-                  variant="soft"
-                  disabled={!joinCodeInput.trim()}
-                  onClick={() => navigate(`/room/${joinCodeInput.trim()}`)}
-                >
-                  Join
-                </Button>
-              </div>
-            </div>
           </div>
-          <div className="heroArt">
-            <div
-              style={{
-                width: '260px',
-                height: '260px',
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, #6366f1, #a855f7)',
-                display: 'grid',
-                placeItems: 'center',
-                boxShadow: '0 0 80px rgba(99,102,241,0.4)',
-                animation: 'spin 20s linear infinite',
-              }}
+
+          <div className="retroContentSwitcher" role="tablist" aria-label="Content Experience">
+            <button
+              className="switcherPill"
+              onClick={() => navigate('/')}
+              role="tab"
+              aria-selected="false"
             >
-              <Disc size={120} color="#fff" />
+              MUSIC
+            </button>
+            <button
+              className="switcherPill"
+              onClick={() => navigate('/podcasts')}
+              role="tab"
+              aria-selected="false"
+            >
+              PODCASTS
+            </button>
+            <button
+              className="switcherPill active"
+              role="tab"
+              aria-selected="true"
+            >
+              LIVE
+            </button>
+          </div>
+        </div>
+
+        {/* Action & Code Input Bar */}
+        <div className="liveActionBar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span className="liveRoomsCount">
+              {publicRooms.length} {publicRooms.length === 1 ? 'Room Active' : 'Rooms Active'}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <input
+                type="text"
+                placeholder="ENTER ROOM CODE"
+                value={joinCodeInput}
+                onChange={(e) => setJoinCodeInput(e.target.value.toUpperCase())}
+                style={{
+                  padding: '7px 12px',
+                  borderRadius: '8px',
+                  background: '#ffffff',
+                  border: '1.5px solid #000000',
+                  color: '#000000',
+                  fontFamily: 'var(--font-pixel, monospace)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  width: '150px',
+                }}
+              />
+              <button
+                className="retroSmallActionBtn"
+                disabled={!joinCodeInput.trim()}
+                onClick={() => navigate(`/room/${joinCodeInput.trim()}`)}
+              >
+                JOIN
+              </button>
             </div>
+
+            <button
+              className="createRoomActionBtn"
+              onClick={() => setShowCreateModal(true)}
+              aria-label="Start a Live Room"
+            >
+              <Plus size={14} />
+              <span>START A LIVE ROOM</span>
+            </button>
           </div>
         </div>
 
         {/* Create Room Modal */}
         {showCreateModal && (
           <div
-            className="modalBackdrop"
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.75)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 9999,
-            }}
+            className="equalizerModalBackdrop"
             onClick={() => setShowCreateModal(false)}
+            role="dialog"
+            aria-label="Create Live Room"
           >
             <div
-              className="modalCard"
-              style={{
-                background: 'var(--surface-raised, #18181b)',
-                padding: '28px',
-                borderRadius: '20px',
-                width: '90%',
-                maxWidth: '440px',
-                border: '1px solid var(--line)',
-              }}
+              className="retroPopupCard"
+              style={{ maxWidth: 440 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h2>Create a Listening Room</h2>
-              <p style={{ color: 'var(--muted)', marginBottom: '20px', fontSize: '14px' }}>
-                Set up a synchronized stage for your friends or community.
-              </p>
-              <form onSubmit={handleCreateRoom}>
-                <label style={{ display: 'block', fontSize: '12px', color: 'var(--muted)', marginBottom: '6px' }}>
-                  Room Name
-                </label>
-                <input
-                  type="text"
-                  value={createName}
-                  onChange={(e) => setCreateName(e.target.value)}
-                  placeholder="e.g. Midnight Synthwave & Coding"
-                  autoFocus
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    background: 'var(--surface, #09090b)',
-                    border: '1px solid var(--line)',
-                    borderRadius: '10px',
-                    color: '#fff',
-                    marginBottom: '16px',
-                  }}
-                />
-
-                <label style={{ display: 'block', fontSize: '12px', color: 'var(--muted)', marginBottom: '6px' }}>
-                  Genre / Vibe Tag
-                </label>
-                <select
-                  value={createGenre}
-                  onChange={(e) => setCreateGenre(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    background: 'var(--surface, #09090b)',
-                    border: '1px solid var(--line)',
-                    borderRadius: '10px',
-                    color: '#fff',
-                    marginBottom: '24px',
-                  }}
+              <div className="popupHeader">
+                <div className="popupTitleWrap">
+                  <Radio size={18} />
+                  <span className="popupTitlePixel">HOST A LIVE ROOM</span>
+                </div>
+                <button
+                  className="popupCloseBtn"
+                  onClick={() => setShowCreateModal(false)}
+                  aria-label="Close dialog"
                 >
-                  <option value="Electronic / Chill">Electronic / Chill</option>
-                  <option value="Lofi / Study Beats">Lofi / Study Beats</option>
-                  <option value="Dream Pop / Indie">Dream Pop / Indie</option>
-                  <option value="Acoustic / Folk">Acoustic / Folk</option>
-                  <option value="All Genres & Vibes">All Genres & Vibes</option>
-                </select>
+                  ✕
+                </button>
+              </div>
 
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                  <Button type="button" variant="soft" onClick={() => setShowCreateModal(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">Create Room</Button>
+              <form onSubmit={handleCreateRoom} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>
+                <div className="retroFormField">
+                  <label className="retroFormLabel">ROOM NAME</label>
+                  <input
+                    type="text"
+                    value={createName}
+                    onChange={(e) => setCreateName(e.target.value)}
+                    placeholder="e.g. Midnight Analog Lounge"
+                    autoFocus
+                    required
+                    className="retroFormInput"
+                  />
+                </div>
+
+                <div className="retroFormField">
+                  <label className="retroFormLabel">GENRE / THEME</label>
+                  <select
+                    value={createGenre}
+                    onChange={(e) => setCreateGenre(e.target.value)}
+                    className="retroFormInput"
+                  >
+                    <option value="Classic / Retro Beats">Classic / Retro Beats</option>
+                    <option value="Lo-Fi & Ambient Vinyl">Lo-Fi & Ambient Vinyl</option>
+                    <option value="Hindi & Bollywood Classics">Hindi & Bollywood Classics</option>
+                    <option value="Odia Heritage Folk">Odia Heritage Folk</option>
+                    <option value="Rock & Alternative">Rock & Alternative</option>
+                    <option value="Jazz & Blues">Jazz & Blues</option>
+                    <option value="Electronic & Modular">Electronic & Modular</option>
+                  </select>
+                </div>
+
+                <div className="modalActionsRow" style={{ marginTop: 10 }}>
+                  <button
+                    type="button"
+                    className="retroSecondaryActionBtn"
+                    onClick={() => setShowCreateModal(false)}
+                  >
+                    CANCEL
+                  </button>
+                  <button type="submit" className="retroPrimaryActionBtn">
+                    LAUNCH ROOM →
+                  </button>
                 </div>
               </form>
             </div>
           </div>
         )}
 
-        <SectionHeader title="Live Public Listening Rooms" />
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '18px', marginTop: '16px' }}>
-          {publicRooms.map((r) => (
-            <Card key={r.code} className="roomCard" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span className="liveDot" />
-                    <strong style={{ fontSize: '16px' }}>{r.name}</strong>
+        {/* Live Rooms Section */}
+        <section className="liveSectionContainer" aria-label="Active Live Sessions">
+          <div className="sectionSubHeader">
+            <div className="sectionTitleGroup">
+              <Radio size={16} />
+              <h2 className="sectionTitlePixel">LIVE NOW</h2>
+            </div>
+          </div>
+
+          <div className="liveCardsGrid">
+            {publicRooms.map((r) => (
+              <div
+                key={r.code}
+                className="liveCardItem"
+                onClick={() => navigate(`/room/${r.code}`)}
+                role="button"
+                tabIndex={0}
+                aria-label={`Tune into ${r.name}`}
+              >
+                <div className="liveCardCoverWrap">
+                  <div className="liveBadgePill">
+                    <span className="liveBlinkDot" />
+                    <span>LIVE</span>
                   </div>
-                  <span style={{ fontSize: '12px', color: 'var(--muted)', display: 'block', marginTop: '4px' }}>
-                    {r.genre} · Hosted by {r.hostName}
-                  </span>
+
+                  <div className="liveCoverVisual">
+                    <Disc3 size={48} className="liveRotatingDisc" />
+                  </div>
+
+                  <div className="liveListenersBadge">
+                    <Users size={12} />
+                    <span>{r.memberCount || 1} listening</span>
+                  </div>
                 </div>
-                <div
-                  style={{
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    background: 'rgba(99,102,241,0.15)',
-                    color: 'var(--accent, #b6f55b)',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                  }}
-                >
-                  {r.memberCount} listening
+
+                <div className="liveCardBody">
+                  <span className="liveRoomGenre">{r.genre}</span>
+                  <h3 className="liveRoomTitle">{r.name}</h3>
+                  <span className="liveHostLabel">Host: {r.hostName || 'Host'}</span>
+
+                  {r.currentTrack && (
+                    <div className="liveNowPlayingTrack">
+                      <Music size={12} />
+                      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        Now Playing: {r.currentTrack.title}
+                      </span>
+                    </div>
+                  )}
+
+                  <button
+                    className="joinRoomBtn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/room/${r.code}`);
+                    }}
+                  >
+                    <span>TUNE IN</span>
+                    <span>→</span>
+                  </button>
                 </div>
               </div>
-
-              {r.currentTrack && (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px',
-                    padding: '8px 12px',
-                    background: 'rgba(255,255,255,0.03)',
-                    borderRadius: '10px',
-                  }}
-                >
-                  <img
-                    src={r.currentTrack.coverUrl || 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=100&q=80'}
-                    alt={r.currentTrack.title}
-                    style={{ width: '38px', height: '38px', borderRadius: '6px' }}
-                  />
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <strong style={{ fontSize: '12px', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {r.currentTrack.title}
-                    </strong>
-                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>{r.currentTrack.artist}</span>
-                  </div>
-                </div>
-              )}
-
-              <Button onClick={() => navigate(`/room/${r.code}`)}>
-                <Radio size={16} /> Join Session
-              </Button>
-            </Card>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
       </div>
     );
   }

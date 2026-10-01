@@ -3127,3 +3127,1305 @@ input {
   background: #000000;
   color: #ffffff;
 }
+
+/* ==========================================================================
+   SONIQUE RETRO CONSOLE SYSTEM - SUBPAGES & COMPONENTS
+   ========================================================================== */
+
+/* Retro Page Shell */
+.retroDetailPage,
+.retroPodcastsPage,
+.retroLivePage {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+}
+
+/* Header & Typography */
+.retroSectionHeader,
+.podcastsPageHeader,
+.livePageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.1);
+}
+
+.podcastsHeaderLeft,
+.liveHeaderLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 680px;
+}
+
+.retroDetailTitle,
+.podcastsMainHeading,
+.liveMainHeading {
+  font-family: var(--font-brand);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-black);
+  letter-spacing: -0.5px;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.retroDetailDesc,
+.podcastsSubtitle,
+.liveSubtitle {
+  font-size: 13px;
+  color: #49505c;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Badges */
+.pageHeaderBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #000000;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  width: fit-content;
+}
+
+.pageHeaderBadge.liveBadgeRed {
+  background: #000000;
+  border: 1px solid #333;
+}
+
+.liveBlinkDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: liveBlink 1.4s ease-in-out infinite;
+}
+
+@keyframes liveBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.75); }
+}
+
+/* Retro Content Switcher (MUSIC / PODCASTS / LIVE) */
+.retroContentSwitcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #c8cbd2;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  padding: 3px 4px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.switcherPill {
+  padding: 6px 14px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  border-radius: 9999px;
+  color: #3a3f49;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.switcherPill:hover {
+  color: #000000;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.switcherPill.active {
+  background: #000000;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Category Filter Pills */
+.podcastCategoriesRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 6px 0 16px 0;
+}
+
+.podcastCatPill {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  border: 1.5px solid #000000;
+  background: #ffffff;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: #111111;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.podcastCatPill:hover {
+  transform: translateY(-1px);
+  background: #f0f2f5;
+}
+
+.podcastCatPill.active {
+  background: #000000;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Action Buttons */
+.retroPrimaryActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #000000;
+  color: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.retroPrimaryActionBtn:hover {
+  transform: translateY(-1px);
+  background: #22252a;
+}
+
+.retroSecondaryActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #ffffff;
+  color: #000000;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.retroSecondaryActionBtn:hover {
+  background: #eaedf2;
+}
+
+.retroSmallActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  color: #000000;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.retroSmallActionBtn:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+.retroSmallActionBtn:hover svg {
+  fill: #ffffff !important;
+}
+
+/* Section Sub-Headers */
+.sectionSubHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionTitlePixel {
+  font-family: var(--font-brand);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--color-black);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.sectionCountBadge {
+  font-family: var(--font-digital, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: #555555;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Retro Browse & Playlist Grid */
+.retroBrowseGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+
+.retroGenreTile {
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.retroGenreTile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  background: #fafbfc;
+}
+
+.retroGenreTitle {
+  font-family: var(--font-brand);
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #000000;
+  display: block;
+}
+
+.retroGenreAction {
+  font-family: var(--font-pixel, monospace);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #333333;
+  letter-spacing: 0.6px;
+  flex-shrink: 0;
+}
+
+.retroGenreTile:hover .retroGenreAction {
+  color: #000000;
+  text-decoration: underline;
+}
+
+/* Retro Data Table (Liked Songs, Search Results, Albums) */
+.retroTable {
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.retroTableHeader {
+  display: grid;
+  grid-template-columns: 36px 3fr 2fr 60px;
+  padding: 10px 16px;
+  background: #e6e8ec;
+  border-bottom: 1.5px solid #000000;
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  color: #333333;
+  letter-spacing: 0.8px;
+}
+
+.retroTableRow {
+  display: grid;
+  grid-template-columns: 36px 3fr 2fr 60px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.retroTableRow:last-child {
+  border-bottom: none;
+}
+
+.retroTableRow:hover {
+  background: #f4f6f8;
+}
+
+.retroTableRow.activeRow {
+  background: #eaedf2;
+  border-left: 3px solid #000000;
+}
+
+.tdCol.idx {
+  font-family: var(--font-digital, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  color: #666666;
+}
+
+.tdCol.title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.tableRowThumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #000000;
+  filter: grayscale(100%);
+  flex-shrink: 0;
+  transition: filter 0.15s ease;
+}
+
+.retroTableRow:hover .tableRowThumb {
+  filter: grayscale(0%);
+}
+
+.tableRowThumb.placeholder {
+  background: #000000;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableTitleGroup {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.tableSongTitlePixel {
+  font-family: var(--font-brand);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tableSongArtistPixel {
+  font-size: 11px;
+  color: #555555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tdCol.album {
+  font-size: 11.5px;
+  color: #555555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 12px;
+}
+
+.tdCol.time {
+  font-family: var(--font-digital, monospace);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #333333;
+}
+
+/* Podcasts Showcase Cards & Grid */
+.podcastsCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.podcastCardItem {
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.podcastCardItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.podcastCoverContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #000000;
+  background: #e2e4e8;
+  margin-bottom: 12px;
+}
+
+.podcastCoverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%);
+  transition: filter 0.2s ease;
+}
+
+.podcastCardItem:hover .podcastCoverImg {
+  filter: grayscale(0%);
+}
+
+.podcastCoverFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  color: #ffffff;
+}
+
+.podcastCatBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #000000;
+  color: #ffffff;
+  font-family: var(--font-pixel, monospace);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.podcastCardMeta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.podcastShowTitle {
+  font-family: var(--font-brand);
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #000000;
+  line-height: 1.25;
+  margin: 0 0 3px 0;
+}
+
+.podcastAuthorName {
+  font-size: 11px;
+  color: #555555;
+  margin-bottom: 8px;
+}
+
+.podcastShowDesc {
+  font-size: 11px;
+  color: #666666;
+  line-height: 1.35;
+  margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.podcastCardFooter {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.podcastEpisodesCount {
+  font-family: var(--font-digital, monospace);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #555555;
+}
+
+.podcastListenAction {
+  font-family: var(--font-pixel, monospace);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #000000;
+}
+
+/* Trending Episode Spotlight */
+.trendingEpisodeSpotlight {
+  margin-top: 24px;
+}
+
+.spotlightEpisodeCard {
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 16px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 1fr 160px;
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.spotlightLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spotlightBadge {
+  font-family: var(--font-pixel, monospace);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #000000;
+  background: #e6e8ec;
+  padding: 3px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  border: 1px solid #000000;
+}
+
+.spotlightTitle {
+  font-family: var(--font-brand);
+  font-size: 18px;
+  font-weight: 800;
+  color: #000000;
+  margin: 0;
+}
+
+.spotlightShowName {
+  font-size: 12px;
+  color: #555555;
+  font-weight: 600;
+}
+
+.spotlightDesc {
+  font-size: 12px;
+  color: #444444;
+  line-height: 1.4;
+  margin: 4px 0 10px 0;
+}
+
+.spotlightActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.spotlightPlayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #000000;
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 8px 18px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+
+.spotlightPlayBtn svg {
+  fill: #ffffff !important;
+}
+
+.spotlightDuration {
+  font-family: var(--font-digital, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  color: #555555;
+}
+
+.spotlightRightCover {
+  width: 160px;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid #000000;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.spotlightImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Live Broadcasts & Rooms */
+.liveActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px 0 14px 0;
+}
+
+.liveRoomsCount {
+  font-family: var(--font-digital, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.createRoomActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #000000;
+  color: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+}
+
+.liveCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.liveCardItem {
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.liveCardItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.liveCardCoverWrap {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  background: radial-gradient(circle, #252830 0%, #0e1014 100%);
+  border-radius: 12px;
+  border: 1px solid #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.liveBadgePill {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffffff;
+  font-family: var(--font-pixel, monospace);
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.liveListenersBadge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffffff;
+  font-family: var(--font-digital, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.liveRotatingDisc {
+  animation: spinVinyl 8s linear infinite;
+  opacity: 0.85;
+}
+
+.liveCardBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.liveRoomGenre {
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  color: #666666;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.liveRoomTitle {
+  font-family: var(--font-brand);
+  font-size: 15px;
+  font-weight: 800;
+  color: #000000;
+  margin: 0 0 4px 0;
+}
+
+.liveHostLabel {
+  font-size: 11px;
+  color: #555555;
+  margin-bottom: 10px;
+}
+
+.liveNowPlayingTrack {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f2f5;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #111111;
+  margin-bottom: 14px;
+}
+
+.joinRoomBtn {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #000000;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.upcomingScheduleGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.upcomingScheduleCard {
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upcomingDateBadge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e6e8ec;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #000000;
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.upcomingGenre {
+  font-size: 10px;
+  font-weight: 800;
+  color: #666666;
+}
+
+.upcomingTitle {
+  font-family: var(--font-brand);
+  font-size: 14px;
+  font-weight: 800;
+  color: #000000;
+  margin: 2px 0;
+}
+
+.upcomingHost {
+  font-size: 11px;
+  color: #555555;
+}
+
+.upcomingReminderBtn {
+  margin-top: 6px;
+  background: #ffffff;
+  color: #000000;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.upcomingReminderBtn:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Empty State Containers */
+.retroEmptyStateContainer,
+.retroEmptyStateBox {
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 16px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.retroEmptyTitle {
+  font-family: var(--font-brand);
+  font-size: 16px;
+  font-weight: 800;
+  color: #000000;
+}
+
+.retroEmptyDesc {
+  font-size: 12px;
+  color: #555555;
+  max-width: 420px;
+  line-height: 1.4;
+}
+
+/* Up Next Queue Box & Empty State */
+.queueEmptyStateBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 12px;
+  margin-top: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.queueEmptyTitle {
+  font-family: var(--font-brand);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #000000;
+}
+
+.queueEmptySub {
+  font-size: 11px;
+  color: #555555;
+  line-height: 1.4;
+}
+
+/* Smart Queue / Autoplay Section */
+.smartQueueSuggestionsArea {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.smartQueueHeaderBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.smartHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: 0.5px;
+}
+
+.smartSubtext {
+  font-size: 9.5px;
+  color: #666666;
+}
+
+.smartTracksList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.queueRow.smartRow {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px dashed #000000;
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.addSmartToQueueBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #000000;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+/* Popups & Modals */
+.equalizerModalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.retroPopupCard {
+  width: 100%;
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.popupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #000000;
+}
+
+.popupTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popupTitlePixel {
+  font-family: var(--font-brand);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #000000;
+}
+
+.popupCloseBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid #000000;
+  background: #e6e8ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.popupCloseBtn:hover {
+  background: #000000;
+  color: #ffffff;
+}
+
+.retroFormField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.retroFormLabel {
+  font-family: var(--font-pixel, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #333333;
+}
+
+.retroFormInput {
+  background: #f4f6f8;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #000000;
+}
+
+.retroFormInput:focus {
+  background: #ffffff;
+  outline: none;
+}
+
+.modalActionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.retroLoadingMsg {
+  padding: 24px;
+  text-align: center;
+  font-family: var(--font-pixel, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  color: #555555;
+}
+
+/* Detail Pages (Playlists, Albums, Artists, Podcasts) */
+.retroBackBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: #22252a;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.retroBackBtn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: #000000;
+}
+
+.retroDetailHeader {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.retroDetailHeader.likedTheme {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f2f5 100%);
+}
+
+.retroDetailArtBox {
+  width: 140px;
+  height: 140px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid #000000;
+  background: #000000;
+  color: #ffffff;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.retroDetailArtBox.likedBox {
+  background: #000000;
+  color: #ffffff;
+}
+
+.retroDetailArtBox.artistBox {
+  border-radius: 50%;
+}
+
+.retroDetailArtImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.retroDetailArtPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #000000;
+  color: #ffffff;
+}
+
+.retroDetailInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.retroDetailBadge {
+  font-family: var(--font-pixel, monospace);
+  font-size: 9.5px;
+  font-weight: 800;
+  background: #000000;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  letter-spacing: 0.8px;
+}
+
+.retroDetailMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #555555;
+  margin-top: 4px;
+}
+
+.retroActionRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 8px 0 14px 0;
+}
+
+.retroBigPlayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #000000;
+  color: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 9999px;
+  padding: 10px 24px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.retroBigPlayBtn svg {
+  fill: #ffffff !important;
+}
+
+.retroBigPlayBtn:hover {
+  transform: translateY(-2px);
+  background: #22252a;
+}
+
+.retroBigPlayBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.retroBlackBtn {
+  background: #000000;
+  color: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-family: var(--font-pixel, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 8px;
+}
+
+.retroBlackBtn:hover {
+  background: #22252a;
+  transform: translateY(-1px);
+}
+
+.tableRowHeartBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: transform 0.15s ease;
+}
+
+.tableRowHeartBtn:hover {
+  transform: scale(1.2);
+}

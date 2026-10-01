@@ -679,14 +679,14 @@ export const favoritePlaylists: FavoritePlaylist[] = [
     id: 'pl-odia-superhits',
     title: 'Odia Nostalgia & Folk Beats',
     songCount: initialSongs.filter((s) => s.genre === 'Odia').length,
-    coverUrl: 'https://c.saavncdn.com/181/Rangabati-Bengali-2019-20190709142827-500x500.jpg',
+    coverUrl: 'https://c.saavncdn.com/919/Gotro-Bengali-2019-20190913134828-500x500.jpg',
     tracks: initialSongs.filter((s) => s.genre === 'Odia'),
   },
   {
     id: 'pl-tollywood-blockbusters',
     title: 'Tollywood Mass & Viral Beats',
     songCount: initialSongs.filter((s) => s.genre === 'Tollywood').length,
-    coverUrl: 'https://c.saavncdn.com/001/RRR-Telugu-2021-20220324140003-500x500.jpg',
+    coverUrl: 'https://c.saavncdn.com/683/RRR-Telugu-Telugu-2022-20250828171313-500x500.jpg',
     tracks: initialSongs.filter((s) => s.genre === 'Tollywood'),
   },
   {
