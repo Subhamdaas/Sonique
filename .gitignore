@@ -9,23 +9,21 @@ node_modules/
 # Environment Variables & Secrets (STRICTLY IGNORED)
 # =============================================================================
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.production
-.env.development
-.env.staging
+.env.*
 apps/*/.env
-apps/*/.env.local
-apps/*/.env.production
+apps/*/.env.*
 packages/*/.env
+packages/*/.env.*
 *.secret
 *.pem
 *.key
 *.cert
 credentials.json
 
+# Whitelist safe example templates
+!.env.example
+!apps/*/.env.example
+!packages/*/.env.example
 
 # =============================================================================
 # Production Build Outputs & Caches
@@ -81,11 +79,10 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 
-# Root forwarders and archives
-/src
+# =============================================================================
+# Archives and Legacy Scratch
+# =============================================================================
+scratch/
 legacy-root-frontend.zip
 /index.html
-scratch/
-
-
-
+/src
