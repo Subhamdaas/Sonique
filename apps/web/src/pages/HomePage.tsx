@@ -15,7 +15,7 @@ export default function HomePage() {
 
       {/* 2. Then: Play Button Bar */}
       <section className="homeSection playBarSectionArea" aria-label="Audio Playback Bar">
-        <Turntable />
+        <Turntable variant="compact" />
       </section>
 
       {/* 3. Then: Favorite Musics */}
