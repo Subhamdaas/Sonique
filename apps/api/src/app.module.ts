@@ -18,6 +18,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { PrismaService } from './common/prisma.service';
 import { RateLimitGuard } from './common/rate-limit.guard';
 import { RedisService } from './common/redis.service';
+import { SupabaseService } from './common/supabase.service';
 import { HealthController } from './common/health.controller';
 
 @Module({
@@ -42,6 +43,7 @@ import { HealthController } from './common/health.controller';
   providers: [
     PrismaService,
     RedisService,
+    SupabaseService,
     {
       provide: APP_GUARD,
       useClass: RateLimitGuard,

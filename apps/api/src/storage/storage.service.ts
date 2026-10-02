@@ -1,7 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { env } from '../config/env';
+import { SupabaseService } from '../common/supabase.service';
 
 export interface UploadFile {
   buffer: Buffer;
@@ -25,15 +26,18 @@ const ALLOWED_MIME_TYPES: Record<string, string[]> = {
 
 @Injectable()
 export class StorageService {
+  private readonly logger = new Logger(StorageService.name);
   private uploadDir = path.join(process.cwd(), 'uploads');
 
-  constructor() {
+  constructor(private readonly supabaseService: SupabaseService) {
     if (!fs.existsSync(this.uploadDir)) {
       fs.mkdirSync(this.uploadDir, { recursive: true });
     }
   }
 
-  saveFile(file: UploadFile): { url: string; filename: string; size: number; mimetype: string } {
+  async saveFile(
+    file: UploadFile,
+  ): Promise<{ url: string; filename: string; size: number; mimetype: string }> {
     if (!file || !file.buffer) {
       throw new BadRequestException('No valid file buffer provided');
     }
@@ -56,8 +60,33 @@ export class StorageService {
     }
 
     const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
-    const targetPath = path.join(this.uploadDir, uniqueName);
 
+    // 1. Try Supabase Storage if configured
+    if (this.supabaseService.isConfigured()) {
+      const folder = ext.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/) ? 'audio' : 'images';
+      const storagePath = `${folder}/${uniqueName}`;
+      const bucket = env.supabaseStorageBucket;
+
+      const result = await this.supabaseService.uploadToStorage(
+        bucket,
+        storagePath,
+        file.buffer,
+        file.mimetype,
+      );
+
+      if (result) {
+        this.logger.log(`Uploaded ${uniqueName} to Supabase Storage bucket "${bucket}"`);
+        return {
+          url: result.url,
+          filename: uniqueName,
+          size: file.size,
+          mimetype: file.mimetype,
+        };
+      }
+    }
+
+    // 2. Fallback to local disk storage
+    const targetPath = path.join(this.uploadDir, uniqueName);
     fs.writeFileSync(targetPath, file.buffer);
 
     const baseUrl = env.apiUrl.replace(/\/+$/, '');

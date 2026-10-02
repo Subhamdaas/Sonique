@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { RedisService } from './redis.service';
+import { SupabaseService } from './supabase.service';
 
 @Controller('health')
 export class HealthController {
@@ -9,6 +10,7 @@ export class HealthController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
+    private readonly supabaseService: SupabaseService,
   ) {}
 
   @Get()
@@ -39,6 +41,7 @@ export class HealthController {
       services: {
         database: databaseStatus,
         redis: redisStatus,
+        supabase: this.supabaseService.isConfigured() ? 'configured' : 'fallback-local',
       },
     };
   }
