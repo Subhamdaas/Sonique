@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import AppShell from './components/AppShell';
 import HomePage from './pages/HomePage';
+import MusicPage from './pages/MusicPage';
 import SearchPage from './pages/SearchPage';
 import LibraryPage from './pages/LibraryPage';
 import LikedSongsPage from './pages/LikedSongsPage';
@@ -111,7 +112,7 @@ export default function App() {
       <Routes>
         <Route element={<AppShell />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/music" element={<HomePage />} />
+          <Route path="/music" element={<MusicPage />} />
           <Route path="/podcasts" element={<PodcastsPage />} />
           <Route path="/live" element={<LivePage />} />
           <Route path="/search" element={<SearchPage />} />

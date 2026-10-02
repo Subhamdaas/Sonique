@@ -7,7 +7,7 @@ interface FavoritePlaylistsProps {
   limit?: number;
 }
 
-export default function FavoritePlaylists({ onPlaylistSelect, limit = 2 }: FavoritePlaylistsProps) {
+export default function FavoritePlaylists({ onPlaylistSelect, limit = 5 }: FavoritePlaylistsProps) {
   const player = usePlayerStore();
   const displayedPlaylists = limit ? favoritePlaylists.slice(0, limit) : favoritePlaylists;
 
