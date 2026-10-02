@@ -1,6 +1,6 @@
-# Aura Stream - Production Deployment Guide
+# Sonique - Production Deployment Guide
 
-This guide outlines deployment strategies for the Aura Stream monorepo services across containerized cloud environments (Docker / AWS ECS / Render / Fly.io / GCP Cloud Run / Supabase).
+This guide outlines deployment strategies for the Sonique monorepo services across containerized cloud environments (Docker / AWS ECS / Render / Fly.io / GCP Cloud Run / Supabase).
 
 ## Prerequisites
 - PostgreSQL 15+ database (e.g., Supabase / AWS RDS).
@@ -16,19 +16,19 @@ This guide outlines deployment strategies for the Aura Stream monorepo services 
 ```env
 PORT=4000
 NODE_ENV=production
-DATABASE_URL=postgresql://postgres.xxxx:yyyy@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true
-DIRECT_URL=postgresql://postgres.xxxx:yyyy@aws-0-ap-south-1.pooler.supabase.com:5432/postgres
-REDIS_URL=redis://default:token@redis-instance.upstash.io:6379
-JWT_SECRET=super_secret_jwt_key_aura_stream_prod_2026
-JWT_REFRESH_SECRET=super_secret_refresh_jwt_key_aura_stream_prod_2026
-FRONTEND_URL=https://aurastream.app
+DATABASE_URL=postgresql://<user>:<password>@<host>:6543/<database>?pgbouncer=true
+DIRECT_URL=postgresql://<user>:<password>@<host>:5432/<database>
+REDIS_URL=redis://<user>:<password>@<redis-host>:6379
+JWT_SECRET=<generate-a-secure-secret>
+JWT_REFRESH_SECRET=<generate-a-secure-secret>
+FRONTEND_URL=https://<your-frontend-domain>
 UPLOAD_DIR=/var/data/uploads
 ```
 
 ### Web Client (`.env.production`)
 ```env
-VITE_API_BASE_URL=https://api.aurastream.app/api
-VITE_SOCKET_URL=https://api.aurastream.app
+VITE_API_URL=https://<your-api-domain>/api
+VITE_SOCKET_URL=https://<your-api-domain>
 ```
 
 ---

@@ -8,10 +8,10 @@ services:
       - "4000:4000"
     environment:
       - PORT=4000
-      - DATABASE_URL=postgresql://aura:aura_password@postgres:5432/aura
+      - DATABASE_URL=postgresql://sonique:sonique_password@postgres:5432/sonique
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=aura_stream_dev_jwt_secret_key_2026
-      - JWT_REFRESH_SECRET=aura_stream_dev_refresh_jwt_secret_key_2026
+      - JWT_SECRET=sonique_dev_jwt_secret_key_2026
+      - JWT_REFRESH_SECRET=sonique_dev_refresh_jwt_secret_key_2026
     depends_on:
       - postgres
       - redis
@@ -32,13 +32,13 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: aura
-      POSTGRES_USER: aura
-      POSTGRES_PASSWORD: aura_password
+      POSTGRES_DB: sonique
+      POSTGRES_USER: sonique
+      POSTGRES_PASSWORD: sonique_password
     ports:
       - "5432:5432"
     volumes:
-      - aura-postgres:/var/lib/postgresql/data
+      - sonique-postgres:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
@@ -46,9 +46,9 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - aura-redis:/data
+      - sonique-redis:/data
 
 volumes:
-  aura-postgres:
-  aura-redis:
+  sonique-postgres:
+  sonique-redis:
   api-uploads:

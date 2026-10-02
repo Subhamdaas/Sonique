@@ -1,4 +1,4 @@
-# Aura Stream - Real-Time Collaborative WebSockets Specification
+# Sonique - Real-Time Collaborative WebSockets Specification
 
 Gateway Namespace: `/rooms`  
 Protocol: Socket.IO (WebSocket / Polling fallback)

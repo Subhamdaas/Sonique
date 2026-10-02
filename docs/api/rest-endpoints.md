@@ -1,4 +1,4 @@
-# Aura Stream - REST API Endpoints Specification
+# Sonique - REST API Endpoints Specification
 
 Base URL: `http://localhost:4000/api`
 

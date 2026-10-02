@@ -1,4 +1,4 @@
-# Aura Stream — Phase 2: Authentication & Users
+# Sonique — Phase 2: Authentication & Users
 
 ## Included
 - NestJS API in `apps/api`

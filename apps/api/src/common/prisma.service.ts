@@ -18,7 +18,7 @@ export class PrismaService
   constructor() {
     const connectionString =
       process.env.DATABASE_URL ||
-      'postgresql://aura:aura_password@localhost:5432/aura';
+      'postgresql://sonique:sonique_password@localhost:5432/sonique';
 
     const isCloudOrSupabase =
       connectionString.includes('supabase.co') ||

@@ -10,7 +10,7 @@ import crypto from 'crypto';
 
 const connectionString =
   process.env.DATABASE_URL ||
-  'postgresql://postgres.mweyleftbjyvcubhfqfk:Sonique%40%23%240672@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true';
+  'postgresql://sonique:sonique_password@localhost:5432/sonique';
 
 const isCloud =
   connectionString.includes('supabase.co') ||

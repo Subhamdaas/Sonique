@@ -1,6 +1,6 @@
-# Aura Stream - Architecture System Overview
+# Sonique - Architecture System Overview
 
-Aura Stream is a modern, high-performance distributed audio streaming platform offering real-time music and podcast streaming, collaborative listening rooms, personalized recommendations, lossless audio quality tiers, and artist analytics.
+Sonique is a modern, high-performance distributed audio streaming platform offering real-time music and podcast streaming, collaborative listening rooms, personalized recommendations, lossless audio quality tiers, and artist analytics.
 
 ## System Architecture
 

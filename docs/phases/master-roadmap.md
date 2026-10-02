@@ -1,4 +1,4 @@
-# Aura Stream - 17-Stage Master Execution Matrix
+# Sonique - 17-Stage Master Execution Matrix
 
 | Stage | Area | Main Work | Implementation Status |
 | :--- | :--- | :--- | :--- |
@@ -18,4 +18,4 @@
 | **14** | **Offline & Advanced Playback** | Offline downloads, caching, playback quality, download management, advanced player | ✅ **Completed** (Lossless high-res switch, volume normalization, stream quality selector) |
 | **15** | **Podcasts** | Podcast shows, episodes, podcast search, episode playback, subscriptions/follows | ✅ **Completed** (PodcastsModule, `/api/podcasts/shows`, episode player integration, podcast directory) |
 | **16** | **Scale, Security & Operations** | Redis rate limiting, caching, CDN, monitoring, logging, health checks, security audit | ✅ **Completed** (HealthController `/api/health`, Redis connection resilience, rate limiter, security headers) |
-| **17** | **Production Release** | Final testing, deployment, database/Redis production setup, documentation | ✅ **Completed** (Multi-container Docker Compose, shared packages `@aura-stream/shared`, comprehensive docs) |
+| **17** | **Production Release** | Final testing, deployment, database/Redis production setup, documentation | ✅ **Completed** (Multi-container Docker Compose, shared packages `@sonique/shared`, comprehensive docs) |

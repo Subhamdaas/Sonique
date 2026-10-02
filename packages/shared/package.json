@@ -1,7 +1,7 @@
 {
-  "name": "@aura-stream/shared",
+  "name": "@sonique/shared",
   "version": "1.0.0",
-  "description": "Shared types and schemas for Aura Stream Platform",
+  "description": "Shared types and schemas for Sonique Platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
