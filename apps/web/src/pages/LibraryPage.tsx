@@ -4,7 +4,6 @@ import { Disc3, Heart, Plus, Play, Pause, Clock, Music, X } from 'lucide-react';
 import { usePlayerStore } from '../store/playerStore';
 import { useLibraryStore } from '../store/libraryStore';
 import { useAuthStore } from '../store/authStore';
-import { favoritePlaylists } from '../data/mockData';
 
 export default function LibraryPage() {
   const navigate = useNavigate();
@@ -14,6 +13,7 @@ export default function LibraryPage() {
     myPlaylists,
     likedTracks,
     isLoading,
+    error,
     fetchLibrary,
     createPlaylist,
   } = useLibraryStore();
@@ -58,8 +58,6 @@ export default function LibraryPage() {
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  const allPlaylists = myPlaylists && myPlaylists.length > 0 ? myPlaylists : favoritePlaylists;
-
   return (
     <div className="retroDetailPage">
       {/* Header */}
@@ -82,10 +80,23 @@ export default function LibraryPage() {
         </div>
       </div>
 
+      {isLoading && (
+        <div className="retroLoadingMsg" style={{ margin: '16px 0' }}>Loading your library...</div>
+      )}
+
+      {error && (
+        <div className="retroEmptyStateContainer" style={{ margin: '16px 0', padding: '16px' }}>
+          <p style={{ color: '#c00' }}>{error}</p>
+          <button className="retroBlackBtn" onClick={fetchLibrary} style={{ marginTop: 8 }}>
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Playlists Cards Section */}
       <section style={{ margin: '24px 0' }}>
         <div className="sectionSubHeader">
-          <h2 className="sectionTitlePixel">PLAYLISTS & MIXES ({allPlaylists.length + 1})</h2>
+          <h2 className="sectionTitlePixel">PLAYLISTS & MIXES ({myPlaylists.length + 1})</h2>
         </div>
 
         <div className="retroBrowseGrid">
@@ -123,7 +134,7 @@ export default function LibraryPage() {
             <span className="retroGenreAction">OPEN →</span>
           </div>
 
-          {allPlaylists.map((pl) => (
+          {myPlaylists.map((pl) => (
             <div
               key={pl.id}
               className="retroGenreTile"
@@ -305,4 +316,3 @@ export default function LibraryPage() {
     </div>
   );
 }
-

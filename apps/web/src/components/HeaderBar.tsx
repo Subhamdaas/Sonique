@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Search, Mail, Bell, User, X, Play } from 'lucide-react';
-import { initialSongs, RetroSong } from '../data/mockData';
 import { usePlayerStore } from '../store/playerStore';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { Track } from '../types';
 import soniqueLogo from '../assets/sonique-logo.jpg';
 
 interface HeaderBarProps {
@@ -21,12 +21,12 @@ export default function HeaderBar({
 }: HeaderBarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [searchResults, setSearchResults] = useState<RetroSong[]>([]);
+  const [searchResults, setSearchResults] = useState<Track[]>([]);
   const player = usePlayerStore();
   const searchWrapRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // Handle live search
+  // Handle live search with debouncing
   useEffect(() => {
     const q = searchQuery.trim();
     if (!q) {
@@ -34,28 +34,25 @@ export default function HeaderBar({
       return;
     }
     let isCurrent = true;
-    api
-      .search(q)
-      .then((res) => {
-        if (isCurrent) {
-          setSearchResults(res.tracks as any || []);
-        }
-      })
-      .catch(() => {
-        if (isCurrent) {
-          const filtered = initialSongs.filter(
-            (s) =>
-              s.title.toLowerCase().includes(q.toLowerCase()) ||
-              s.artist.toLowerCase().includes(q.toLowerCase()) ||
-              s.genre?.toLowerCase().includes(q.toLowerCase())
-          );
-          setSearchResults(filtered);
-        }
-      });
+    const timeout = setTimeout(() => {
+      api
+        .search(q, 'tracks')
+        .then((res) => {
+          if (isCurrent) {
+            setSearchResults(res.tracks || []);
+          }
+        })
+        .catch(() => {
+          if (isCurrent) {
+            setSearchResults([]);
+          }
+        });
+    }, 150);
 
     if (onSearchChange) onSearchChange(q);
     return () => {
       isCurrent = false;
+      clearTimeout(timeout);
     };
   }, [searchQuery, onSearchChange]);
 
@@ -70,8 +67,8 @@ export default function HeaderBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelectTrack = (song: RetroSong) => {
-    player.setCurrent(song as any, searchResults.length > 0 ? (searchResults as any) : (initialSongs as any));
+  const handleSelectTrack = (song: Track) => {
+    player.setCurrent(song, searchResults.length > 0 ? searchResults : [song]);
     setIsSearchFocused(false);
   };
 
@@ -144,11 +141,15 @@ export default function HeaderBar({
                     aria-label={`Play ${song.title}`}
                     onKeyDown={(e) => e.key === 'Enter' && handleSelectTrack(song)}
                   >
-                    <img
-                      src={song.coverUrl || ''}
-                      alt={song.title}
-                      className="searchItemThumb"
-                    />
+                    {song.coverUrl ? (
+                      <img
+                        src={song.coverUrl}
+                        alt={song.title}
+                        className="searchItemThumb"
+                      />
+                    ) : (
+                      <div className="searchItemThumb placeholder" />
+                    )}
                     <div className="searchItemMeta">
                       <span className="searchItemTitle">{song.title}</span>
                       <span className="searchItemArtist">{song.artist} • {song.genre || song.album || 'Catalog'}</span>

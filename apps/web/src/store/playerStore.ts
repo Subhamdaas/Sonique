@@ -653,6 +653,28 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
 
       // 2. Synchronize with backend if user is authenticated
       await get().syncWithBackend();
+
+      // 3. Fallback: If player is still empty (first visit), load initial featured track from backend catalog
+      if (!get().current) {
+        try {
+          const featured = await api.getFeatured();
+          const first = featured?.featuredTracks?.[0];
+          if (first && !get().current) {
+            set({
+              current: first,
+              queue: featured.featuredTracks && featured.featuredTracks.length > 0 ? featured.featuredTracks : [first],
+              progress: 0,
+              duration: first.duration || 0,
+              isPlaying: false,
+            });
+            if (first.audioUrl) {
+              audioEngine.loadTrack(first.audioUrl, 0);
+            }
+          }
+        } catch {
+          // If backend unavailable, player remains in clean initial empty state
+        }
+      }
     },
 
     syncWithBackend: async () => {
@@ -664,7 +686,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => {
         if (!serverState || !serverState.track) return;
 
         // If local state is empty or older than server state, adopt server state
-        const { current, progress } = get();
+        const { current } = get();
         if (!current) {
           const restoredTrack: Playable = serverState.track;
           const restoredProgress = Math.floor(serverState.positionSeconds || 0);

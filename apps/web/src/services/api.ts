@@ -34,7 +34,7 @@ export function saveTokens(accessToken: string | null, refreshToken: string | nu
     } else {
       localStorage.removeItem(REFRESH_KEY);
     }
-    // Clean up any legacy aura keys
+    // Clean up any legacy keys
     localStorage.removeItem('aura_access_token');
     localStorage.removeItem('aura_refresh_token');
   } catch {}
@@ -116,7 +116,7 @@ async function request<T>(path: string, options: RequestInit = {}, isRetry = fal
   if (!response.ok) {
     const message = Array.isArray(data.message)
       ? data.message.join(', ')
-      : data.message || 'Request failed';
+      : data.message || `Request failed with status ${response.status}`;
     throw new Error(message);
   }
   return data as T;
@@ -189,118 +189,28 @@ export const api = {
   },
 
   // Catalog
-  getFeatured: async () => {
-    try {
-      return await request<{
-        featuredTracks: Track[];
-        topPlaylists: Playlist[];
-        newReleases: Album[];
-        popularArtists: Artist[];
-      }>('/catalog/featured');
-    } catch {
-      const { initialSongs, favoritePlaylists, mockAlbums, mockArtists } = await import('../data/mockData');
-      return {
-        featuredTracks: initialSongs as any,
-        topPlaylists: favoritePlaylists.map((p) => ({
-          id: p.id,
-          title: p.title,
-          coverUrl: p.coverUrl,
-          _count: { tracks: p.songCount },
-        })) as any,
-        newReleases: mockAlbums as any,
-        popularArtists: mockArtists as any,
-      };
-    }
-  },
+  getFeatured: () =>
+    request<{
+      featuredTracks: Track[];
+      topPlaylists: Playlist[];
+      newReleases: Album[];
+      popularArtists: Artist[];
+    }>('/catalog/featured'),
 
-  getGenres: async () => {
-    try {
-      return await request<{ name: string; coverUrl: string }[]>('/catalog/genres');
-    } catch {
-      const { categoriesList } = await import('../data/mockData');
-      return categoriesList.filter((c) => c !== 'All').map((name) => ({ name, coverUrl: '' }));
-    }
-  },
+  getGenres: () => request<{ name: string; coverUrl?: string }[]>('/catalog/genres'),
 
-  getArtists: async () => {
-    try {
-      return await request<Artist[]>('/catalog/artists');
-    } catch {
-      const { mockArtists } = await import('../data/mockData');
-      return mockArtists as any;
-    }
-  },
+  getArtists: () => request<Artist[]>('/catalog/artists'),
 
-  getArtist: async (id: string) => {
-    try {
-      return await request<Artist>(`/catalog/artists/${id}`);
-    } catch {
-      const { mockArtists, initialSongs } = await import('../data/mockData');
-      const found = mockArtists.find((a) => a.id === id);
-      if (found) return found as any;
-      // Fallback artist by track match
-      const song = initialSongs.find((s) => s.artist.toLowerCase().includes(id.toLowerCase()) || s.id === id);
-      return {
-        id,
-        name: song ? song.artist : 'Featured Artist',
-        bio: 'High-fidelity Sonique artist performing across modern and vintage catalog recordings.',
-        imageUrl: song?.coverUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
-        monthlyListeners: 1250000,
-        genres: [song?.genre || 'Classic'],
-        tracks: song ? [song] : initialSongs.slice(0, 5),
-      } as any;
-    }
-  },
+  getArtist: (id: string) => request<Artist>(`/catalog/artists/${id}`),
 
-  getAlbums: async () => {
-    try {
-      return await request<Album[]>('/catalog/albums');
-    } catch {
-      const { mockAlbums } = await import('../data/mockData');
-      return mockAlbums as any;
-    }
-  },
+  getAlbums: () => request<Album[]>('/catalog/albums'),
 
-  getAlbum: async (id: string) => {
-    try {
-      return await request<Album>(`/catalog/albums/${id}`);
-    } catch {
-      const { mockAlbums, initialSongs } = await import('../data/mockData');
-      const found = mockAlbums.find((a) => a.id === id);
-      if (found) return found as any;
-      const song = initialSongs.find((s) => s.album?.toLowerCase().includes(id.toLowerCase()) || s.id === id);
-      return {
-        id,
-        title: song?.album || 'Album Collection',
-        artist: { name: song?.artist || 'Sonique Artist' },
-        releaseYear: 2023,
-        coverUrl: song?.coverUrl || 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=600&q=80',
-        genre: song?.genre || 'Classic',
-        tracks: song ? [song] : initialSongs.slice(0, 6),
-      } as any;
-    }
-  },
+  getAlbum: (id: string) => request<Album>(`/catalog/albums/${id}`),
 
   // Tracks
-  getTracks: async () => {
-    try {
-      return await request<Track[]>('/tracks');
-    } catch {
-      const { initialSongs } = await import('../data/mockData');
-      return initialSongs as any;
-    }
-  },
+  getTracks: () => request<Track[]>('/tracks'),
 
-  getTrack: async (id: string) => {
-    try {
-      return await request<Track>(`/tracks/${id}`);
-    } catch {
-      const { initialSongs } = await import('../data/mockData');
-      const found = initialSongs.find((t) => t.id === id);
-      if (found) return found as any;
-      return initialSongs[0] as any;
-    }
-  },
+  getTrack: (id: string) => request<Track>(`/tracks/${id}`),
 
   createTrack: (input: {
     title: string;
@@ -337,118 +247,35 @@ export const api = {
     }),
 
   // Recommendations
-  getPersonalizedRecommendations: async (userId?: string) => {
-    try {
-      return await request<{
-        recommendedTracks: Track[];
-        discoverWeekly: Track[];
-        genres: string[];
-      }>(
-        `/recommendations/personalized${userId ? `?userId=${encodeURIComponent(userId)}` : ''}`,
-      );
-    } catch {
-      const { initialSongs, categoriesList } = await import('../data/mockData');
-      return {
-        recommendedTracks: initialSongs.slice(0, 6) as any,
-        discoverWeekly: initialSongs.slice(6, 12) as any,
-        genres: categoriesList.filter((c) => c !== 'All'),
-      };
-    }
-  },
+  getPersonalizedRecommendations: (userId?: string) =>
+    request<{
+      recommendedTracks: Track[];
+      discoverWeekly: Track[];
+      genres: string[];
+    }>(
+      `/recommendations/personalized${userId ? `?userId=${encodeURIComponent(userId)}` : ''}`,
+    ),
 
-  getSimilarTracks: async (trackId: string) => {
-    try {
-      return await request<Track[]>(`/recommendations/similar/${trackId}`);
-    } catch {
-      const { initialSongs } = await import('../data/mockData');
-      const current = initialSongs.find((s) => s.id === trackId);
-      const sameGenre = current
-        ? initialSongs.filter((s) => s.genre === current.genre && s.id !== trackId)
-        : initialSongs.filter((s) => s.id !== trackId);
-      return (sameGenre.length > 0 ? sameGenre : initialSongs).slice(0, 5) as any;
-    }
-  },
+  getSimilarTracks: (trackId: string) =>
+    request<Track[]>(`/recommendations/similar/${trackId}`),
 
   // Playlists
-  getPlaylists: async () => {
-    try {
-      return await request<Playlist[]>('/playlists');
-    } catch {
-      const { favoritePlaylists } = await import('../data/mockData');
-      return favoritePlaylists.map((p) => ({
-        id: p.id,
-        title: p.title,
-        coverUrl: p.coverUrl,
-        tracks: p.tracks as any,
-        _count: { tracks: p.songCount },
-      })) as any;
-    }
-  },
+  getPlaylists: () => request<Playlist[]>('/playlists'),
 
-  getMyPlaylists: async () => {
-    try {
-      return await request<Playlist[]>('/playlists/me');
-    } catch {
-      const { favoritePlaylists } = await import('../data/mockData');
-      return favoritePlaylists.slice(0, 3).map((p) => ({
-        id: p.id,
-        title: p.title,
-        coverUrl: p.coverUrl,
-        tracks: p.tracks as any,
-        _count: { tracks: p.songCount },
-      })) as any;
-    }
-  },
+  getMyPlaylists: () => request<Playlist[]>('/playlists/me'),
 
-  getPlaylist: async (id: string) => {
-    try {
-      return await request<Playlist>(`/playlists/${id}`);
-    } catch {
-      const { favoritePlaylists, initialSongs } = await import('../data/mockData');
-      const found = favoritePlaylists.find((p) => p.id === id);
-      if (found) {
-        return {
-          id: found.id,
-          title: found.title,
-          coverUrl: found.coverUrl,
-          description: 'Curated vinyl playlist with authentic audiophile mastering.',
-          tracks: found.tracks.map((t) => ({ track: t })),
-          _count: { tracks: found.tracks.length },
-        } as any;
-      }
-      return {
-        id,
-        title: 'Sonique Curated Playlist',
-        description: 'Authentic vinyl audio collection.',
-        coverUrl: initialSongs[0]?.coverUrl || '',
-        tracks: initialSongs.slice(0, 8).map((t) => ({ track: t })),
-        _count: { tracks: Math.min(8, initialSongs.length) },
-      } as any;
-    }
-  },
+  getPlaylist: (id: string) => request<Playlist>(`/playlists/${id}`),
 
-  createPlaylist: async (input: {
+  createPlaylist: (input: {
     title: string;
     description?: string;
     coverUrl?: string;
     isPublic?: boolean;
-  }) => {
-    try {
-      return await request<Playlist>('/playlists', {
-        method: 'POST',
-        body: JSON.stringify(input),
-      });
-    } catch {
-      return {
-        id: `pl-${Date.now()}`,
-        title: input.title,
-        description: input.description,
-        coverUrl: input.coverUrl || 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=300&q=80',
-        tracks: [],
-        _count: { tracks: 0 },
-      } as any;
-    }
-  },
+  }) =>
+    request<Playlist>('/playlists', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
 
   updatePlaylist: (
     id: string,
@@ -478,14 +305,7 @@ export const api = {
     }),
 
   // Likes
-  getLikedTracks: async () => {
-    try {
-      return await request<Track[]>('/likes');
-    } catch {
-      const { initialSongs } = await import('../data/mockData');
-      return initialSongs.slice(0, 5) as any;
-    }
-  },
+  getLikedTracks: () => request<Track[]>('/likes'),
 
   getLikeStatus: (trackId: string) =>
     request<{ trackId: string; liked: boolean }>(`/likes/${trackId}/status`),
@@ -501,50 +321,15 @@ export const api = {
     ),
 
   // Search
-  search: async (q: string, type?: string) => {
-    try {
-      return await request<{
-        query: string;
-        tracks: Track[];
-        artists: Artist[];
-        albums: Album[];
-        playlists: Playlist[];
-        podcasts: PodcastShow[];
-      }>(`/search?q=${encodeURIComponent(q)}${type ? `&type=${type}` : ''}`);
-    } catch {
-      const { initialSongs, mockArtists, mockAlbums, favoritePlaylists, mockPodcasts } = await import('../data/mockData');
-      const query = q.toLowerCase().trim();
-      const matchedTracks = initialSongs.filter(
-        (s) =>
-          s.title.toLowerCase().includes(query) ||
-          s.artist.toLowerCase().includes(query) ||
-          s.genre?.toLowerCase().includes(query) ||
-          s.album?.toLowerCase().includes(query)
-      );
-      const matchedArtists = mockArtists.filter((a) => a.name.toLowerCase().includes(query) || a.genres?.some((g: string) => g.toLowerCase().includes(query)));
-      const matchedAlbums = mockAlbums.filter((al) => al.title.toLowerCase().includes(query) || al.artist?.name?.toLowerCase().includes(query));
-      const matchedPlaylists = favoritePlaylists
-        .filter((p) => p.title.toLowerCase().includes(query))
-        .map((p) => ({
-          id: p.id,
-          title: p.title,
-          coverUrl: p.coverUrl,
-          _count: { tracks: p.songCount },
-        }));
-      const matchedPodcasts = mockPodcasts.filter(
-        (pod) => pod.title.toLowerCase().includes(query) || pod.author.toLowerCase().includes(query) || pod.category?.toLowerCase().includes(query)
-      );
-
-      return {
-        query: q,
-        tracks: matchedTracks as any,
-        artists: matchedArtists as any,
-        albums: matchedAlbums as any,
-        playlists: matchedPlaylists as any,
-        podcasts: matchedPodcasts as any,
-      };
-    }
-  },
+  search: (q: string, type?: string) =>
+    request<{
+      query: string;
+      tracks: Track[];
+      artists: Artist[];
+      albums: Album[];
+      playlists: Playlist[];
+      podcasts: PodcastShow[];
+    }>(`/search?q=${encodeURIComponent(q)}${type ? `&type=${type}` : ''}`),
 
   // Playback & History
   recordPlaybackEvent: (trackId: string, durationPlayed?: number) =>
@@ -580,91 +365,33 @@ export const api = {
     }),
 
   // Podcasts
-  getPodcastShows: async (category?: string) => {
-    try {
-      return await request<PodcastShow[]>(
-        `/podcasts/shows${category ? `?category=${encodeURIComponent(category)}` : ''}`,
-      );
-    } catch {
-      const { mockPodcasts } = await import('../data/mockData');
-      if (category && category !== 'ALL') {
-        return mockPodcasts.filter((p) => p.category?.toLowerCase() === category.toLowerCase()) as any;
-      }
-      return mockPodcasts as any;
-    }
-  },
+  getPodcastShows: (category?: string) =>
+    request<PodcastShow[]>(
+      `/podcasts/shows${category && category !== 'ALL' ? `?category=${encodeURIComponent(category)}` : ''}`,
+    ),
 
-  getPodcastShow: async (id: string) => {
-    try {
-      return await request<PodcastShow>(`/podcasts/shows/${id}`);
-    } catch {
-      const { mockPodcasts } = await import('../data/mockData');
-      const found = mockPodcasts.find((p) => p.id === id);
-      if (found) return found as any;
-      return mockPodcasts[0] as any;
-    }
-  },
+  getPodcastShow: (id: string) =>
+    request<PodcastShow>(`/podcasts/shows/${id}`),
 
-  getPodcastEpisode: async (id: string) => {
-    try {
-      return await request<PodcastEpisode>(`/podcasts/episodes/${id}`);
-    } catch {
-      const { mockEpisodes } = await import('../data/mockData');
-      const found = mockEpisodes.find((e) => e.id === id);
-      if (found) return found as any;
-      return mockEpisodes[0] as any;
-    }
-  },
+  getPodcastEpisode: (id: string) =>
+    request<PodcastEpisode>(`/podcasts/episodes/${id}`),
 
   // Live Rooms & Broadcasts
-  getRooms: async () => {
-    try {
-      return await request<any[]>('/rooms');
-    } catch {
-      const { mockRooms } = await import('../data/mockData');
-      return mockRooms;
-    }
-  },
+  getRooms: () => request<any[]>('/rooms'),
 
-  getRoom: async (code: string) => {
-    try {
-      return await request<any>(`/rooms/${code}`);
-    } catch {
-      const { mockRooms } = await import('../data/mockData');
-      const found = mockRooms.find((r) => r.code === code);
-      if (found) return found;
-      return {
-        code,
-        name: 'Live Communal Session',
-        genre: 'Communal Vinyl',
-        hostName: 'DJ Host',
-        isPublic: true,
-        memberCount: 6,
-        messages: [],
-      };
-    }
-  },
+  getRoom: (code: string) => request<any>(`/rooms/${code}`),
 
-  createRoom: async (input: { name: string; genre?: string; isPublic?: boolean; hostId?: string; hostName?: string }) => {
-    try {
-      return await request<any>('/rooms', {
-        method: 'POST',
-        body: JSON.stringify(input),
-      });
-    } catch {
-      const code = `room-${Date.now().toString(36)}`;
-      const newRoom = {
-        code,
-        name: input.name,
-        genre: input.genre || 'Classic / Retro Beats',
-        hostName: input.hostName || 'Session Host',
-        isPublic: input.isPublic !== false,
-        memberCount: 1,
-        messages: [],
-      };
-      return newRoom;
-    }
-  },
+  createRoom: (input: {
+    name: string;
+    genre?: string;
+    isPublic?: boolean;
+    hostId?: string;
+    hostName?: string;
+  }) =>
+    request<any>('/rooms', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
 
   // Subscriptions
   getCurrentSubscription: () => request<any>('/subscriptions/current'),
